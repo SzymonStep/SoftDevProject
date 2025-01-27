@@ -17,7 +17,7 @@ public class insert
 
             try {
                 //establish connection to database
-                connection = DriverManager.getconnection(DATABASE_URL, "root", "password");
+                connection = DriverManager.getConnection(DATABASE_URL, "root", "password");
 
                 //create Prepared Statement for inserting into table
                 pstat = connection.prepareStatement("INSERT INTO Authors (FirstName, LastName) VALUES (?,?)");
