@@ -22,7 +22,7 @@ public class update{
             connection = DriverManager.getConnection(DATABASE_URL, "root", "password");
 
             //create Prepared Statement for updating data in the table
-            pstat = connection.getStatement("Update Authors SET LastName=? Where FirstName=?" );
+            pstat = connection.prepareStatement("Update Authors SET LastName=? Where FirstName=?" );
             pstat.setString(1, lastname);
             pstat.setString(2, firstname);
 
