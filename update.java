@@ -8,7 +8,7 @@ public class update{
     public static void main (String[] args){
 
         //database URL
-        final String DATABASE_URL ="";
+        final String DATABASE_URL ="jdbc:mysql://localhost:3306/SalesSystem?useSSL=false";
 
         String firstname = "firtsname2";
         String lastname ="lastname2";

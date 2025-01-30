@@ -1,3 +1,7 @@
+CREATE SCHEMA IF NOT EXISTS `SalesSystem` DEFAULT CHARACTER SET utf8;
+USE `SalesSystem`;
+
+
 CREATE TABLE Equipment (
 	equipmentId int AUTO_INCREMENT PRIMARY KEY,
     equipmentName VARCHAR(50) NOT NULL,
@@ -7,7 +11,7 @@ CREATE TABLE Equipment (
     equipmentPrice DECIMAL(10, 2) NOT NULL
 );
 
-CREATE TABLE Equipment Catalogue (
+CREATE TABLE EquipmentCatalogue (
     catalogueId INT AUTO_INCREMENT PRIMARY KEY,
     equipmentId INT NOT NULL,
     FOREIGN KEY (equipmentId) REFERENCES Equipment(equipmentId)
@@ -35,7 +39,7 @@ CREATE TABLE Orders (
     customerId INT NOT NULL,
     orderDate DATETIME NOT NULL,
     totalAmount DECIMAL(10, 2),
-    status VARCHAR(50) NOT NULL,
+    orderStatus VARCHAR(50) NOT NULL,
     FOREIGN KEY (customerId) REFERENCES Customer(customerId)
 );
 
@@ -44,7 +48,7 @@ CREATE TABLE OrderReturns (
     orderId INT NOT NULL,
     equipmentId INT NOT NULL,
     reason TEXT NOT NULL,
-    status VARCHAR(50) NOT NULL,
+    orderReturnStatus VARCHAR(50) NOT NULL,
     replacementRequested BOOLEAN;
     FOREIGN KEY (orderId) REFERENCES Orders(orderId),
     FOREIGN KEY (equipmentId) REFERENCES Equipment(equipmentId)
