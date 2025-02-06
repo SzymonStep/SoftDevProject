@@ -11,10 +11,10 @@ public class insertCustomer
             final String DATABASE_URL = "jdbc:mysql://localhost:3306/SalesSystem?useSSL=false";
             Connection connection = null;
             PreparedStatement pstat = null;
-            String firstname = "firstName1";
-            String lastname = "lastName1";
+            String firstname = "firstName";
+            String lastname = "lastName";
             String address = "address";
-            String email = "email";
+            String email = "email@gmail.com";
             String phoneNumber = "0871234567";
 
             int i =0;
@@ -41,9 +41,15 @@ public class insertCustomer
             }
             finally {
                 try{
-                    pstat.close();
-                    connection.close();
-                }
+                    if(pstat != null)
+                        {
+                            pstat.close();
+                        }
+                    if (connection != null)
+                        {
+                            connection.close();
+                        }
+                    }
                 catch (Exception exception){
                     exception.printStackTrace();
                 }

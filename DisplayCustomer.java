@@ -10,7 +10,7 @@ public class DisplayCustomer
     public static void main(String args[])
     {
         //database URL
-        final String DATABASE_URL = "jdbc:mysql://localhost:3306/SalesSystem?useSSL=false";
+        final String DATABASE_URL = "jdbc:mysql://localhost:3306/SalesSystem?allowPublicKeyRetrieval=true&useSSL=false";
 
         Connection connection = null;
         PreparedStatement pstat = null;
@@ -22,7 +22,7 @@ public class DisplayCustomer
             connection = DriverManager.getConnection(DATABASE_URL, "root", "password");
 
             // create Prepared Statement for querying data in the table
-            pstat = connection.prepareStatement("SELECT customerId, firstName, lastName FROM Customer");
+            pstat = connection.prepareStatement("SELECT customerId, firstName, lastName, address, email, phoneNumber FROM Customer");
 
             // query data in the table
             resultSet = pstat.executeQuery();
@@ -34,14 +34,14 @@ public class DisplayCustomer
 
             for (int i = 1; i <= numberOfColumns; i++)
                 {
-                    System.out.print(metaData.getColumnName(i) + "\t");
+                    System.out.print(metaData.getColumnName(i)+ "\t");
                 }
                 System.out.println();
 
             while (resultSet.next() ){
                     for (int i = 1; i <= numberOfColumns; i++)
                     {
-                        System.out.print(resultSet.getObject(i) + "\t\t");        
+                        System.out.print(resultSet.getObject(i) + "\t" );        
                     }
                     System.out.println();
                 }
