@@ -8,7 +8,7 @@ public class insertCustomer
     public static void main(String[] args)
         {
             //database URL
-            final String DATABASE_URL = "jdbc:mysql://localhost:3306/SalesSystem?useSSL=false";
+            final String DATABASE_URL = "jdbc:mysql://localhost:3306/SalesSystem?allowPublicKeyRetrieval=true&useSSL=false";
             Connection connection = null;
             PreparedStatement pstat = null;
             String firstname = "firstName";

@@ -11,7 +11,6 @@ public class DisplayCustomer
     {
         //database URL
         final String DATABASE_URL = "jdbc:mysql://localhost:3306/SalesSystem?allowPublicKeyRetrieval=true&useSSL=false";
-
         Connection connection = null;
         PreparedStatement pstat = null;
         ResultSet resultSet = null;
@@ -41,7 +40,7 @@ public class DisplayCustomer
             while (resultSet.next() ){
                     for (int i = 1; i <= numberOfColumns; i++)
                     {
-                        System.out.print(resultSet.getObject(i) + "\t" );        
+                        System.out.print(resultSet.getObject(i) + "\t\t" );        
                     }
                     System.out.println();
                 }

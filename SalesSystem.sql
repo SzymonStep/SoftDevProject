@@ -10,12 +10,6 @@ CREATE TABLE Equipment (
     equipmentPrice DECIMAL(10, 2) NOT NULL
 );
 
-CREATE TABLE EquipmentCatalogue (
-    catalogueId INT AUTO_INCREMENT PRIMARY KEY,
-    equipmentId INT NOT NULL,
-    FOREIGN KEY (equipmentId) REFERENCES Equipment(equipmentId)
-);
-
 CREATE TABLE Customer (
 	customerId INT AUTO_INCREMENT PRIMARY KEY,
     firstName VARCHAR(50) NOT NULL,
@@ -25,11 +19,13 @@ CREATE TABLE Customer (
     phoneNumber VARCHAR(10) NOT NULL
 );
 
-
 CREATE TABLE Staff (
 	staffId INT AUTO_INCREMENT PRIMARY KEY,
 	firstName VARCHAR(50) NOT NULL,
-    lastName VARCHAR(50) NOT NULL
+    lastName VARCHAR(50) NOT NULL,
+    staffRole VARCHAR(10) NOT NULL,
+    email VARCHAR(50) NOT NULL,
+    phoneNumber VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE Orders (
@@ -50,6 +46,14 @@ CREATE TABLE OrderReturns (
     replacementRequested BOOLEAN,
     FOREIGN KEY (orderId) REFERENCES Orders(orderId),
     FOREIGN KEY (equipmentId) REFERENCES Equipment(equipmentId)
+);
+
+CREATE TABLE OrderAndEquipment (
+    orderId INT NOT NULL,
+    equipmentId INT NOT NULL,
+    PRIMARY KEY (orderId, equipmentId);
+    FOREIGN KEY (orderId) REFERENCES Orders(orderId),
+    FOREIGN KEY (equipmentID) REFERENCES Equipment(equipmentId)
 );
 
 CREATE TABLE CustomerFeedback (
