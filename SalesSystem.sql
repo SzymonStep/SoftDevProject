@@ -51,7 +51,7 @@ CREATE TABLE OrderReturns (
 CREATE TABLE OrderAndEquipment (
     orderId INT NOT NULL,
     equipmentId INT NOT NULL,
-    PRIMARY KEY (orderId, equipmentId);
+    PRIMARY KEY (orderId, equipmentId),
     FOREIGN KEY (orderId) REFERENCES Orders(orderId),
     FOREIGN KEY (equipmentID) REFERENCES Equipment(equipmentId)
 );
@@ -78,7 +78,7 @@ CREATE TABLE Reports (
     reportId INT AUTO_INCREMENT PRIMARY KEY,
     reportType VARCHAR(50) NOT NULL,
     reportData TEXT NOT NULL,
-    generateDate DATETIME NOT NULL
+    reportDate TEXT NOT NULL
 );
 
 CREATE TABLE FaultyItems (

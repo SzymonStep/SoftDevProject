@@ -1,7 +1,9 @@
 import java.sql.*;
 import java.util.*;
+import java.sql.Date;
+import java.time.LocalDate;
 
-public class GenericDatabaseOperations {
+public class insertTable {
     private static final String DATABASE_URL = "jdbc:mysql://localhost:3306/SalesSystem?allowPublicKeyRetrieval=true&useSSL=false";
     private static final String USERNAME = "root"; // Change as needed
     private static final String PASSWORD = "password"; // Change as needed
@@ -64,71 +66,62 @@ public class GenericDatabaseOperations {
         equipmentData.put("equipmentName", "equipmentName1");
         equipmentData.put("equipmentType", "equipmentType");
         equipmentData.put("equipmentSpecifications", "equipmentSpecifications");
-        equipmentData.put("quantityAvailable", "101");
-        equipmentData.put("equipmentPrice", "9.99");
+        equipmentData.put("quantityAvailable", 101);
+        equipmentData.put("equipmentPrice", 9.99);
 
         insertRecord("Equipment", equipmentData);
 
         Map<String, Object> ordersData = new HashMap<>();
-        ordersData.put("customerId", "customerId");
-        ordersData.put("orderDate", "date");        // Date entry??
-        ordersData.put("totalAmount", "9.99");     
+        ordersData.put("customerId", "1");
+        ordersData.put("orderDate", Date.valueOf(LocalDate.now()));        // Date entry??
+        ordersData.put("totalAmount", 9.99);     
         ordersData.put("orderStatus", "Processing");
 
         insertRecord("Orders", ordersData);
 
         Map<String, Object> OrderReturnsData = new HashMap<>();
         OrderReturnsData.put("orderId", "01");
-        OrderReturnsData.put("equipmentId", "123");
+        OrderReturnsData.put("equipmentId", "1");
         OrderReturnsData.put("reason", "Reason 1");
         OrderReturnsData.put("orderReturnStatus", "In Progress");
-        OrderReturnsData.put("replacementRequested", "true"); // Double check logic with foreign keys
+        OrderReturnsData.put("replacementRequested", "1"); // Double check logic with foreign keys
 
         insertRecord("OrderReturns", OrderReturnsData);
 
         Map<String, Object> orderAndEquipmentData = new HashMap<>();
-        orderAndEquipmentData.put("orderId", "123");
-        orderAndEquipmentData.put("equipmentID", "456");
-        orderAndEquipmentData.put("replacementRequested", "true"); // Double check logic with foreign keys
-        orderAndEquipmentData.put("quantityAvailable", "101");
-        orderAndEquipmentData.put("equipmentPrice", "$9.99");
+        orderAndEquipmentData.put("orderId", 2);
+        orderAndEquipmentData.put("equipmentId", 1);
 
         insertRecord("OrderAndEquipment", orderAndEquipmentData);
 
         Map<String, Object> customerFeedbackData = new HashMap<>();
-        customerFeedbackData.put("customerId", "123");
-        customerFeedbackData.put("orderId", "456");
+        customerFeedbackData.put("customerId", "1");
+        customerFeedbackData.put("orderId", "1");
         customerFeedbackData.put("comments", "comment"); // Double check logic with foreign keys
-        customerFeedbackData.put("rating", "10");
+        customerFeedbackData.put("rating", 5);
 
         insertRecord("CustomerFeedback", customerFeedbackData);
 
         Map<String, Object> deliveryData = new HashMap<>();
-        deliveryData.put("orderId", "123");
-        deliveryData.put("estimatedDeliveryTime", "In Progress"); 
-        deliveryData.put("trackingStatus", "101");
+        deliveryData.put("orderId", "1");
+        deliveryData.put("estimatedDeliveryTime", Date.valueOf(LocalDate.now())); 
+        deliveryData.put("trackingStatus", "Processing");
 
         insertRecord("Delivery", deliveryData);
 
         Map<String, Object> reportData = new HashMap<>();
-        reportData.put("reportType", "");
-        reportData.put("reportData", "456");
-        reportData.put("generateDate", "date");
+        reportData.put("reportType", "Report1");
+        reportData.put("reportData", "1");
+        reportData.put("generateDate", Date.valueOf(LocalDate.now()));
 
         insertRecord("Reports", reportData);
 
         Map<String, Object> faultyItemData = new HashMap<>();
-        faultyItemData.put("equipmentID", "456");
-        faultyItemData.put("batchNumber", "123"); 
+        faultyItemData.put("equipmentID", "1");
+        faultyItemData.put("batchNumber", "1"); 
         faultyItemData.put("faultDescription", "text");
-        faultyItemData.put("reportedDate", "date");
+        faultyItemData.put("reportedDate", Date.valueOf(LocalDate.now()));
 
         insertRecord("FaultyItems", faultyItemData);
-
-
-
-
-
-
     }
 }
