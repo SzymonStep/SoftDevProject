@@ -6,7 +6,11 @@ import java.util.*;
 import java.util.List;
 
 public class guiTest extends JFrame {
-
+    /*public Color(int r, int b, int g){
+        int r =0;
+        int b = 128;
+        int g = 128; 
+    }*/
     // Database connection details (same as used in the provided files)
     private static final String DATABASE_URL = "jdbc:mysql://localhost:3306/SalesSystem?allowPublicKeyRetrieval=true&useSSL=false";
     private static final String USERNAME = "root";
@@ -15,7 +19,7 @@ public class guiTest extends JFrame {
     public guiTest() {
         setTitle("Pharmacy System");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
+        setSize(1920, 1080);
         setLocationRelativeTo(null);
 
         // Create menu bar with Customer operations.
@@ -25,11 +29,21 @@ public class guiTest extends JFrame {
         JMenuItem updateCustomerItem = new JMenuItem("Update Customer");
         JMenuItem deleteCustomerItem = new JMenuItem("Delete Customer");
         JMenuItem viewCustomersItem = new JMenuItem("View Customers");
+        JMenu stockMenu = new JMenu("Stock");
+        JMenuItem addStockItem = new JMenuItem("Add Stock");
+        JMenuItem updateStockItem = new JMenuItem("Update Stock");
+        JMenuItem deleteStockItem = new JMenuItem("Delete Stock");
+        JMenuItem viewStockItem = new JMenuItem("View Stock");
 
         customerMenu.add(addCustomerItem);
         customerMenu.add(updateCustomerItem);
         customerMenu.add(deleteCustomerItem);
         customerMenu.add(viewCustomersItem);
+        stockMenu.add(addStockItem);
+        stockMenu.add(deleteStockItem);
+        stockMenu.add(updateStockItem);
+        stockMenu.add(viewStockItem);
+        menuBar.add(stockMenu);
         menuBar.add(customerMenu);
         setJMenuBar(menuBar);
 
@@ -54,14 +68,35 @@ public class guiTest extends JFrame {
                 openViewCustomersPanel();
             }
         });
+        addStockItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                //openAddStockDialog();
+            }
+        });
+        updateStockItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                openUpdateStockDialog();
+            }
+        });
+        deleteStockItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                openDeleteStockDialog();
+            }
+        });
+        viewStockItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                //openViewStockPanel();
+            }
+        });
 
         // Main panel with welcome message.
         JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(Color.WHITE);
         JLabel welcomeLabel = new JLabel("Welcome to the Pharmacy System", SwingConstants.CENTER);
-        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        welcomeLabel.setFont(new Font("Comic Sans", Font.BOLD, 32));
         mainPanel.add(welcomeLabel, BorderLayout.CENTER);
         add(mainPanel);
-    }
+    }   
 
     // Dialog to add a new customer (based on insertCustomer and insertTable logic :contentReference[oaicite:3]{index=3}, :contentReference[oaicite:4]{index=4})
     private void openAddCustomerDialog() {
@@ -328,6 +363,142 @@ public class guiTest extends JFrame {
         return rowsAffected;
     }
 
+    private void openDeleteStockDialog() {
+        JDialog dialog = new JDialog(this, "Delete Stock", true);
+        dialog.setSize(300, 150);
+        dialog.setLocationRelativeTo(this);
+        JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
+    
+        panel.add(new JLabel("Stock ID:"));
+        JTextField idField = new JTextField();
+        panel.add(idField);
+    
+        JButton deleteButton = new JButton("Delete");
+        panel.add(deleteButton);
+        JButton cancelButton = new JButton("Cancel");
+        panel.add(cancelButton);
+    
+        dialog.add(panel);
+    
+        deleteButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int stockId;
+                try {
+                    stockId = Integer.parseInt(idField.getText());
+                } catch(NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(dialog, "Invalid Stock ID");
+                    return;
+                }
+                int rowsAffected = deleteStock(stockId);
+                if(rowsAffected > 0) {
+                    JOptionPane.showMessageDialog(dialog, "Stock deleted successfully.");
+                } else {
+                    JOptionPane.showMessageDialog(dialog, "Error deleting stock.");
+                }
+                dialog.dispose();
+            }
+        });
+    
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dialog.dispose();
+            }
+        });
+    
+        dialog.setVisible(true);
+    }
+    private void openUpdateStockDialog() {
+        JDialog dialog = new JDialog(this, "Update Stock", true);
+        dialog.setSize(400, 350);
+        dialog.setLocationRelativeTo(this);
+        JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
+    
+        panel.add(new JLabel("Stock ID:"));
+        JTextField idField = new JTextField();
+        panel.add(idField);
+    
+        panel.add(new JLabel("Product Name:"));
+        JTextField productField = new JTextField();
+        panel.add(productField);
+    
+        panel.add(new JLabel("Quantity:"));
+        JTextField quantityField = new JTextField();
+        panel.add(quantityField);
+    
+        panel.add(new JLabel("Price:"));
+        JTextField priceField = new JTextField();
+        panel.add(priceField);
+    
+        JButton updateButton = new JButton("Update");
+        panel.add(updateButton);
+        JButton cancelButton = new JButton("Cancel");
+        panel.add(cancelButton);
+    
+        dialog.add(panel);
+    
+        updateButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int stockId, quantity, price;
+                try {
+                    stockId = Integer.parseInt(idField.getText());
+                    quantity = Integer.parseInt(quantityField.getText());
+                    price = Integer.parseInt(priceField.getText());
+                } catch(NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(dialog, "Invalid input. Please enter valid numbers for Stock ID, Quantity, and Price.");
+                    return;
+                }
+                int rowsAffected = updateStock(stockId, productField.getText(), quantity, price);
+                if(rowsAffected > 0) {
+                    JOptionPane.showMessageDialog(dialog, "Stock updated successfully.");
+                } else {
+                    JOptionPane.showMessageDialog(dialog, "Error updating stock.");
+                }
+                dialog.dispose();
+            }
+        });
+    
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dialog.dispose();
+            }
+        });
+    
+        dialog.setVisible(true);
+    }
+    
+    // Helper method to update a stock record.
+    private int updateStock(int stockId, String prodName, int quantity, int price) {
+        int rowsAffected = 0;
+        // Corrected query: update the Stock table without an extra comma.
+        String query = "UPDATE Stock SET prodName = ?, quantity = ?, price = ? WHERE stockId = ?";
+        try (Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
+             PreparedStatement pstat = connection.prepareStatement(query)) {
+            pstat.setString(1, prodName);
+            pstat.setInt(2, quantity);
+            pstat.setInt(3, price);
+            pstat.setInt(4, stockId);
+            rowsAffected = pstat.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rowsAffected;
+    }
+    
+
+    // Helper method to delete a customer record.
+    private int deleteStock(int stockId) {
+        int rowsAffected = 0;
+        // Corrected query: delete from Stock table using the stockId column.
+        String query = "DELETE FROM Stock WHERE stockId=?";
+        try (Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
+             PreparedStatement pstat = connection.prepareStatement(query)) {
+            pstat.setInt(1, stockId);
+            rowsAffected = pstat.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rowsAffected;
+    }
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable(){
             public void run(){
