@@ -1,6 +1,6 @@
 import java.sql.*; // Importing SQL-related classes for database interaction
 import java.util.Scanner; // Importing Scanner class to read user input
-
+ 
 public class DisplayTable {
     public static void main(String[] args) {
         // Database connection URL for the SalesSystem database
