@@ -9,7 +9,7 @@ CREATE TABLE Equipment (
 	quantityAvailable INT NOT NULL,
     equipmentPrice DECIMAL(10, 2) NOT NULL
 );
-
+ 
 CREATE TABLE Customer (
 	customerId INT AUTO_INCREMENT PRIMARY KEY,
     firstName VARCHAR(50) NOT NULL,
