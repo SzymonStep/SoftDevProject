@@ -78,13 +78,13 @@ CREATE TABLE Reports (
     reportId INT AUTO_INCREMENT PRIMARY KEY,
     reportType VARCHAR(50) NOT NULL,
     reportData TEXT NOT NULL,
-    reportDate TEXT NOT NULL
+    reportDate DATETIME NOT NULL
 );
 
 CREATE TABLE FaultyItems (
     faultId INT AUTO_INCREMENT PRIMARY KEY,
     equipmentId INT NOT NULL,
-    batchNumber VARCHAR(50) NOT NULL,
+    batchNumber INT NOT NULL,
     faultDescription TEXT NOT NULL,
     reportedDate DATETIME NOT NULL,
     FOREIGN KEY (equipmentId) REFERENCES Equipment(equipmentId)
