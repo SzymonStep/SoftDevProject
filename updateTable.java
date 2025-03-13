@@ -103,22 +103,47 @@ public class updateTable {
         updateRecord("OrderReturns", orderReturnsData, "returnId", returnId);
     }
 
+    public static void updateOrderAndEquipment(int orderId, int equipmentId) {
+        Map<String, Object> OrderAndEquipmentData = new HashMap<>();
+        OrderAndEquipmentData.put("orderId", orderId );
+        OrderAndEquipmentData.put("equipmentId", equipmentId );
 
+        //updateRecord("OrderAndEquipment", OrderAndEquipmentData);
+    }
+    public static void insertCustomerFeedback(int customerId, int orderId, String comments, int rating) {
+        Map<String, Object> customerFeedbackData = new HashMap<>();
+        customerFeedbackData.put("customerId", customerId );
+        customerFeedbackData.put("orderId", orderId );
+        customerFeedbackData.put("comments", comments );
+        customerFeedbackData.put("rating", rating );
 
+        //updateRecord("CustomerFeedback", customerFeedbackData);
+    }
 
+    public static void insertDelivery(int orderId, Timestamp estimatedDeliveryTime, String trackingStatus ) {
+        Map<String, Object> deliveryData = new HashMap<>();
+        deliveryData.put("orderid", orderId );
+        //deliveryData.put("estimatedDeliveryTime", getEstimatedDeliveryTime());
+        deliveryData.put("trackingStatus", trackingStatus);
 
+        ///updateRecord("Delivery", deliveryData);
+    }
+    public static void insertReports(String reportType, String reportData) {
+        Map<String, Object> reportsData = new HashMap<>();
+        reportsData.put("reportType", reportType);
+        reportsData.put("reportData", reportData);
 
+        //updateRecord("Reports", reportsData);
+    }
+    public static void insertFaultyItems(int equipmentId, int batchNumber, String faultDescription) {
+        Map<String, Object> faultyItemData = new HashMap<>();
+        faultyItemData.put("equipmentId", equipmentId);
+        faultyItemData.put("batchNumber", batchNumber);
+        faultyItemData.put("faultDescription", faultDescription);
+        //faultyItemData.put("reportedDate", getCurrentTime());
 
-
-
-
-
-
-
-
-
-
-
+        //updateRecord("FaultyItems", faultyItemData);
+    }
 
     /** Main method to update predefined records */
     //public static void main(String[] args) {

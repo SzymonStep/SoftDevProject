@@ -167,10 +167,10 @@ public class insertTable {
     //    insertEquipmentData();
     //    insertOrdersData();
     //    insertOrderReturnsData();
-          insertOrderAndEquipment(1, 1);
-          insertCustomerFeedback(1, 1, "comments123", 5);
-          insertDelivery(1, getEstimatedDeliveryTime(), "Processing");
-          insertReports("Faulty Item", "Defective Items");
-          insertFaultyItems(1, 1, "Defective Items");
+        insertOrderAndEquipment(1, 1);
+        insertCustomerFeedback(1, 1, "comments123", 5);
+        insertDelivery(1, getEstimatedDeliveryTime(), "Processing");
+        insertReports("Faulty Item", "Defective Items");
+        insertFaultyItems(1, 1, "Defective Items");
     }
 }
