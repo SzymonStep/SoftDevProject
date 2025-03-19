@@ -2,8 +2,24 @@ import java.sql.*; // Import SQL classes for database connection and operations
 import java.util.*; // Import utilities like HashMap
 import java.sql.Date; // Import Date class for handling SQL date types
 import java.time.LocalDate; // Import LocalDate for handling current date
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 
 public class insertTable {
+
+    public static Timestamp getEstimatedDeliveryTime() 
+    {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime deliveryTime = now.plusDays(3);
+        return Timestamp.valueOf(deliveryTime);
+    }
+
+    public static LocalDateTime getCurrentTime()
+    {
+        LocalDateTime currentTime = LocalDateTime.now();
+        return currentTime;
+    }
 
     // Database connection details
     private static final String DATABASE_URL = "jdbc:mysql://localhost:3306/SalesSystem?allowPublicKeyRetrieval=true&useSSL=false";
@@ -43,70 +59,118 @@ public class insertTable {
     }
 
     /** Insert a customer record into the Customer table */
-    public static void insertCustomer() {
+    public static void insertCustomer(String firstName,String lastName,String address,String email,int phoneNumber ) {
         Map<String, Object> customerData = new HashMap<>();
-        customerData.put("firstName", "John");
-        customerData.put("lastName", "Doe");
-        customerData.put("address", "123 Main St");
-        customerData.put("email", "john.doe@example.com");
-        customerData.put("phoneNumber", "0651234567");
+        customerData.put("firstName", firstName);
+        customerData.put("lastName", lastName);
+        customerData.put("address", address);
+        customerData.put("email", email);
+        customerData.put("phoneNumber", phoneNumber);
 
         insertRecord("Customer", customerData);
     }
 
     /** Insert a staff record into the Staff table */
-    public static void insertStaff() {
+    public static void insertStaff(String firstName,String lastName, String staffRole, String email, int phoneNumber) {
         Map<String, Object> staffData = new HashMap<>();
-        staffData.put("firstName", "Sarah");
-        staffData.put("lastName", "Connor");
-        staffData.put("staffRole", "Manager");
-        staffData.put("email", "sarah.connor@example.com");
-        staffData.put("phoneNumber", "0851234567");
+        staffData.put("firstName", firstName);
+        staffData.put("lastName", lastName);
+        staffData.put("staffRole", staffRole);
+        staffData.put("email", email);
+        staffData.put("phoneNumber", phoneNumber);
 
         insertRecord("Staff", staffData);
     }
 
     /** Insert an equipment record into the Equipment table */
-    public static void insertEquipmentData() {
+    public static void insertEquipmentData(String equipmentName, String equipmentType, String equipmentSpecifications, int quantityAvailable, int equipmentPrice) {
         Map<String, Object> equipmentData = new HashMap<>();
-        equipmentData.put("equipmentName", "equipmentName1");
-        equipmentData.put("equipmentType", "equipmentType");
-        equipmentData.put("equipmentSpecifications", "equipmentSpecifications");
-        equipmentData.put("quantityAvailable", 101);
-        equipmentData.put("equipmentPrice", 9.99);
+        equipmentData.put("equipmentName", equipmentName);
+        equipmentData.put("equipmentType", equipmentType);
+        equipmentData.put("equipmentSpecifications", equipmentSpecifications);
+        equipmentData.put("quantityAvailable", quantityAvailable);
+        equipmentData.put("equipmentPrice", equipmentPrice);
 
         insertRecord("Equipment", equipmentData);
     }
 
     /** Insert an order record into the Orders table */
-    public static void insertOrdersData() {
+    public static void insertOrdersData(int customerId, int totalAmount, String orderStatus ) {
         Map<String, Object> ordersData = new HashMap<>();
         ordersData.put("customerId", 1);
-        ordersData.put("orderDate", Date.valueOf(LocalDate.now())); // Get current date
-        ordersData.put("totalAmount", 9.99);
-        ordersData.put("orderStatus", "Processing");
+        ordersData.put("orderDate", Date.valueOf(LocalDate.now())); // Gets current date
+        ordersData.put("totalAmount", totalAmount);
+        ordersData.put("orderStatus", orderStatus);
 
         insertRecord("Orders", ordersData);
     }
 
     /** Insert an order return record into the OrderReturns table */
-    public static void insertOrderReturnsData() {
+    public static void insertOrderReturnsData(int orderId, int equipmentId, String reason, String orderReturnStatus, Boolean replacementRequested) {
         Map<String, Object> orderReturnsData = new HashMap<>();
-        orderReturnsData.put("orderId", 1);
-        orderReturnsData.put("equipmentId", 1);
-        orderReturnsData.put("reason", "Reason 1");
-        orderReturnsData.put("orderReturnStatus", "In Progress");
-        orderReturnsData.put("replacementRequested", 1);
+        orderReturnsData.put("orderId", orderId);
+        orderReturnsData.put("equipmentId", equipmentId);
+        orderReturnsData.put("reason", reason);
+        orderReturnsData.put("orderReturnStatus", orderReturnStatus);
+        orderReturnsData.put("replacementRequested", replacementRequested);
 
         insertRecord("OrderReturns", orderReturnsData);
     }
 
+    public static void insertOrderAndEquipment(int orderId, int equipmentId) {
+        Map<String, Object> OrderAndEquipmentData = new HashMap<>();
+        OrderAndEquipmentData.put("orderId", orderId );
+        OrderAndEquipmentData.put("equipmentId", equipmentId );
+
+        insertRecord("OrderAndEquipment", OrderAndEquipmentData);
+    }
+    public static void insertCustomerFeedback(int customerId, int orderId, String comments, int rating) {
+        Map<String, Object> customerFeedbackData = new HashMap<>();
+        customerFeedbackData.put("customerId", customerId );
+        customerFeedbackData.put("orderId", orderId );
+        customerFeedbackData.put("comments", comments );
+        customerFeedbackData.put("rating", rating );
+
+        insertRecord("CustomerFeedback", customerFeedbackData);
+    }
+
+    public static void insertDelivery(int orderId, Timestamp estimatedDeliveryTime, String trackingStatus ) {
+        Map<String, Object> deliveryData = new HashMap<>();
+        deliveryData.put("orderid", orderId );
+        deliveryData.put("estimatedDeliveryTime", getEstimatedDeliveryTime());
+        deliveryData.put("trackingStatus", trackingStatus);
+
+        insertRecord("Delivery", deliveryData);
+    }
+    public static void insertReports(String reportType, String reportData) {
+        Map<String, Object> reportsData = new HashMap<>();
+        reportsData.put("reportType", reportType);
+        reportsData.put("reportData", reportData);
+        reportsData.put("reportDate", getCurrentTime());
+
+        insertRecord("Reports", reportsData);
+    }
+    public static void insertFaultyItems(int equipmentId, int batchNumber, String faultDescription) {
+        Map<String, Object> faultyItemData = new HashMap<>();
+        faultyItemData.put("equipmentId", equipmentId);
+        faultyItemData.put("batchNumber", batchNumber);
+        faultyItemData.put("faultDescription", faultDescription);
+        faultyItemData.put("reportedDate", getCurrentTime());
+
+        insertRecord("FaultyItems", faultyItemData);
+    }
+
     /** Main method to insert all predefined records into respective tables */
     public static void main(String[] args) {
-        insertCustomer();
-        insertStaff();
-        insertEquipmentData();
-        insertOrdersData();
-        insertOrderReturnsData();
+    //    insertCustomer();
+    //    insertStaff();
+    //    insertEquipmentData();
+    //    insertOrdersData();
+    //    insertOrderReturnsData();
+          insertOrderAndEquipment(1, 1);
+          insertCustomerFeedback(1, 1, "comments123", 5);
+          insertDelivery(1, getEstimatedDeliveryTime(), "Processing");
+          insertReports("Faulty Item", "Defective Items");
+          insertFaultyItems(1, 1, "Defective Items");
     }
 }

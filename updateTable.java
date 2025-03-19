@@ -45,70 +45,87 @@ public class updateTable {
     }
 
     /** Update a customer record in the Customer table */
-    public static void updateCustomer(int customerId) {
+    public static void updateCustomer(int customerId, String firstName, String lastName, String address, String email, int phoneNumber) {
         Map<String, Object> customerData = new HashMap<>();
-        customerData.put("firstName", "John");
-        customerData.put("lastName", "Doe");
-        customerData.put("address", "456 New St"); // Updated address
-        customerData.put("email", "john.doe@newmail.com"); // Updated email
-        customerData.put("phoneNumber", "0659876543"); // Updated phone number
+        customerData.put("firstName", firstName);
+        customerData.put("lastName", lastName);
+        customerData.put("address", address); // Updated address
+        customerData.put("email", email); // Updated email
+        customerData.put("phoneNumber", phoneNumber); // Updated phone number
 
         updateRecord("Customer", customerData, "customerId", customerId);
     }
 
     /** Update a staff record in the Staff table */
-    public static void updateStaff(int staffId) {
+    public static void updateStaff(int staffId, String firstName, String lastName, String staffRole, String email, int phoneNumber) {
         Map<String, Object> staffData = new HashMap<>();
-        staffData.put("firstName", "Sarah");
-        staffData.put("lastName", "Connor");
-        staffData.put("staffRole", "Manager"); // Updated role
-        staffData.put("email", "sarah.connor@newmail.com"); // Updated email
-        staffData.put("phoneNumber", "0859999999"); // Updated phone number
+        staffData.put("firstName", firstName);
+        staffData.put("lastName", lastName);
+        staffData.put("staffRole", staffRole); // Updated role
+        staffData.put("email", email); // Updated email
+        staffData.put("phoneNumber", phoneNumber); // Updated phone number
 
         updateRecord("Staff", staffData, "staffId", staffId);
     }
 
     /** Update an equipment record in the Equipment table */
-    public static void updateEquipment(int equipmentId) {
+    public static void updateEquipment(int equipmentId, String equipmentName, String equipmentType, String equipmentSpecifications, int quantityAvailable, int equipmentPrice ) {
         Map<String, Object> equipmentData = new HashMap<>();
-        equipmentData.put("equipmentName", "Updated Equipment");
-        equipmentData.put("equipmentType", "Updated Type");
-        equipmentData.put("equipmentSpecifications", "Updated Specifications");
-        equipmentData.put("quantityAvailable", 150); // Updated quantity
-        equipmentData.put("equipmentPrice", 15.99); // Updated price
+        equipmentData.put("equipmentName", equipmentName);
+        equipmentData.put("equipmentType", equipmentType);
+        equipmentData.put("equipmentSpecifications", equipmentSpecifications);
+        equipmentData.put("quantityAvailable", quantityAvailable); // Updated quantity
+        equipmentData.put("equipmentPrice", equipmentPrice); // Updated price
 
         updateRecord("Equipment", equipmentData, "equipmentId", equipmentId);
     }
 
     /** Update an order record in the Orders table */
-    public static void updateOrders(int orderId) {
+    public static void updateOrders(int orderId, int customerId, double totalAmount, String orderStatus) {
         Map<String, Object> ordersData = new HashMap<>();
-        ordersData.put("customerId", 1);
+        ordersData.put("customerId", orderId);
         ordersData.put("orderDate", Date.valueOf(LocalDate.now())); // Updated date
-        ordersData.put("totalAmount", 19.99); // Updated amount
-        ordersData.put("orderStatus", "Shipped"); // Updated status
+        ordersData.put("totalAmount", totalAmount); // Updated amount
+        ordersData.put("orderStatus", orderStatus); // Updated status
 
         updateRecord("Orders", ordersData, "orderId", orderId);
     }
 
     /** Update an order return record in the OrderReturns table */
-    public static void updateOrderReturns(int returnId) {
+    public static void updateOrderReturns(int returnId, int orderId, int equipmentId, String reason, String orderReturnStatus, Boolean replacementRequested) {
         Map<String, Object> orderReturnsData = new HashMap<>();
-        orderReturnsData.put("orderId", 1);
-        orderReturnsData.put("equipmentId", 1);
-        orderReturnsData.put("reason", "Updated Reason");
-        orderReturnsData.put("orderReturnStatus", "Resolved"); // Updated status
-        orderReturnsData.put("replacementRequested", 0); // Updated replacement request
+        orderReturnsData.put("orderId", orderId);
+        orderReturnsData.put("equipmentId", equipmentId);
+        orderReturnsData.put("reason", reason);
+        orderReturnsData.put("orderReturnStatus", orderReturnStatus); // Updated status
+        orderReturnsData.put("replacementRequested", replacementRequested); // Updated replacement request
 
         updateRecord("OrderReturns", orderReturnsData, "returnId", returnId);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /** Main method to update predefined records */
-    public static void main(String[] args) {
-        updateCustomer(1);
-        updateStaff(1);
-        updateEquipment(1);
-        updateOrders(1);
-        updateOrderReturns(1);
-    }
+    //public static void main(String[] args) {
+        //updateCustomer(1);
+        //updateStaff(1);
+        //updateEquipment(1);
+        //updateOrders(1);
+        //updateOrderReturns(1);
+    //}
 }
