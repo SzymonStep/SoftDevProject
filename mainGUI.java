@@ -9,6 +9,9 @@ public class mainGUI extends JFrame {
     private static final String DATABASE_URL = "jdbc:mysql://localhost:3306/SalesSystem?allowPublicKeyRetrieval=true&useSSL=false";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "password";
+    
+    // Constant for uniform Add and Delete button size
+    private static final Dimension BUTTON_SIZE = new Dimension(150, 40);
 
     public mainGUI() {
         setTitle("Pharmacy System");
@@ -169,6 +172,7 @@ public class mainGUI extends JFrame {
         panel.add(phoneField);
 
         JButton addButton = new JButton("Add");
+        addButton.setPreferredSize(BUTTON_SIZE);
         panel.add(addButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
@@ -272,6 +276,7 @@ public class mainGUI extends JFrame {
         panel.add(idField);
 
         JButton deleteButton = new JButton("Delete");
+        deleteButton.setPreferredSize(BUTTON_SIZE);
         panel.add(deleteButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
@@ -400,6 +405,7 @@ public class mainGUI extends JFrame {
         panel.add(idField);
 
         JButton deleteButton = new JButton("Delete");
+        deleteButton.setPreferredSize(BUTTON_SIZE);
         panel.add(deleteButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
@@ -462,6 +468,7 @@ public class mainGUI extends JFrame {
         panel.add(reportedDateField);
 
         JButton addButton = new JButton("Add");
+        addButton.setPreferredSize(BUTTON_SIZE);
         panel.add(addButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
@@ -571,6 +578,7 @@ public class mainGUI extends JFrame {
         panel.add(idField);
 
         JButton deleteButton = new JButton("Delete");
+        deleteButton.setPreferredSize(BUTTON_SIZE);
         panel.add(deleteButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
@@ -648,6 +656,7 @@ public class mainGUI extends JFrame {
         panel.add(statusField);
 
         JButton addButton = new JButton("Add");
+        addButton.setPreferredSize(BUTTON_SIZE);
         panel.add(addButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
@@ -763,6 +772,7 @@ public class mainGUI extends JFrame {
         panel.add(orderIdField);
 
         JButton deleteButton = new JButton("Delete");
+        deleteButton.setPreferredSize(BUTTON_SIZE);
         panel.add(deleteButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
