@@ -1,7 +1,7 @@
 import java.sql.*; // Import SQL classes for database operations
 import java.util.*; // Import utilities like HashMap for handling key-value pairs
 import java.sql.Date; // Import SQL Date class to handle SQL Date objects
-import java.time.LocalDate; // Import LocalDate for handling the current date in a more readable format
+import java.time.LocalDate; // Import LocalDate for handling the current date in a more readable format 
 
 public class updateTable {
 

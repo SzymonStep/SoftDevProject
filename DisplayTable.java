@@ -1,6 +1,6 @@
 import java.sql.*; // Importing SQL-related classes for database interaction
 import java.util.Scanner; // Importing Scanner class to read user input
-
+ 
 public class DisplayTable {
 
     // Method to display all rows from the specified table

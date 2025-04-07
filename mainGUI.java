@@ -9,6 +9,12 @@ public class mainGUI extends JFrame {
     private static final String DATABASE_URL = "jdbc:mysql://localhost:3306/SalesSystem?allowPublicKeyRetrieval=true&useSSL=false";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "password";
+    
+    // Constant for uniform CRUD button size (smaller size: 150x30)
+    private static final Dimension BUTTON_SIZE = new Dimension(150, 30);
+
+    // Center panel where all operation panels will be loaded.
+    private JPanel centerPanel;
 
     public mainGUI() {
         setTitle("Pharmacy System");
@@ -26,61 +32,71 @@ public class mainGUI extends JFrame {
         topPanel.add(welcomeLabel);
         add(topPanel, BorderLayout.NORTH);
 
-        // Side menu panel with collapsible sections.
+        // Side menu panel with dropdown (popup) categories.
         JPanel sideMenu = createSideMenuPanel();
         add(sideMenu, BorderLayout.WEST);
 
-        // Center panel as a placeholder.
-        JPanel centerPanel = new JPanel(new BorderLayout());
-        JLabel placeholderLabel = new JLabel("Select an operation from the side menu", SwingConstants.CENTER);
-        placeholderLabel.setFont(new Font("Arial", Font.ITALIC, 24));
-        centerPanel.add(placeholderLabel, BorderLayout.CENTER);
+        // Center panel (initially showing a placeholder).
+        centerPanel = new JPanel(new BorderLayout());
+        centerPanel.add(createPlaceholderPanel(), BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
     }
 
-    // Helper method to create a collapsible panel for each group.
+    // Helper method to create the placeholder panel.
+    private JPanel createPlaceholderPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JLabel placeholderLabel = new JLabel("Select an operation from the side menu", SwingConstants.CENTER);
+        placeholderLabel.setFont(new Font("Arial", Font.ITALIC, 24));
+        panel.add(placeholderLabel, BorderLayout.CENTER);
+        return panel;
+    }
+
+    // Helper method to update the center panel.
+    private void setCenterPanel(JPanel newPanel) {
+        centerPanel.removeAll();
+        centerPanel.add(newPanel, BorderLayout.CENTER);
+        centerPanel.revalidate();
+        centerPanel.repaint();
+    }
+
+    // Create a collapsible panel with a header button that shows a popup menu.
     private JPanel createCollapsiblePanel(String title, List<JButton> buttons) {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Header button for the collapsible panel.
+        // Header button for the popup menu.
         JButton headerButton = new JButton(title);
         headerButton.setAlignmentX(Component.LEFT_ALIGNMENT);
         headerButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, headerButton.getPreferredSize().height));
         
-        // Panel that contains the actual operation buttons.
-        JPanel contentPanel = new JPanel();
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        contentPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        // Add each button with spacing.
+        // Create a popup menu to hold the operation buttons.
+        JPopupMenu popupMenu = new JPopupMenu();
         for (JButton btn : buttons) {
             btn.setAlignmentX(Component.LEFT_ALIGNMENT);
-            contentPanel.add(btn);
-            contentPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+            btn.setPreferredSize(BUTTON_SIZE);
+            btn.setMaximumSize(BUTTON_SIZE);
+            popupMenu.add(btn);
+            popupMenu.addSeparator();
         }
-        contentPanel.setVisible(false); // Initially collapsed.
-
-        // Toggle the visibility of the content when the header is clicked.
+        // Show the popup menu to the right of the header button when clicked.
         headerButton.addActionListener(e -> {
-            contentPanel.setVisible(!contentPanel.isVisible());
-            panel.revalidate();
+            popupMenu.show(headerButton, headerButton.getWidth(), 0);
         });
 
         panel.add(headerButton);
-        panel.add(contentPanel);
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         return panel;
     }
 
-    // Create the side menu with collapsible panels.
+    // Create the side menu using collapsible panels.
     private JPanel createSideMenuPanel() {
         JPanel sideMenu = new JPanel();
         sideMenu.setLayout(new BoxLayout(sideMenu, BoxLayout.Y_AXIS));
-        sideMenu.setPreferredSize(new Dimension(150, 0));
+        sideMenu.setPreferredSize(new Dimension(175, 0));
         sideMenu.setBackground(new Color(230, 230, 250)); // Light lavender
 
-        // Customer operations buttons.
+        // Customer operations.
         JButton addCustomerBtn = new JButton("Add Customer");
         addCustomerBtn.addActionListener(e -> openAddCustomerWindow());
         JButton updateCustomerBtn = new JButton("Update Customer");
@@ -92,7 +108,7 @@ public class mainGUI extends JFrame {
         List<JButton> customerButtons = Arrays.asList(addCustomerBtn, updateCustomerBtn, deleteCustomerBtn, viewCustomersBtn);
         JPanel customerPanel = createCollapsiblePanel("Customer", customerButtons);
 
-        // Stock operations buttons.
+        // Stock operations.
         JButton addStockBtn = new JButton("Add Stock");
         addStockBtn.addActionListener(e -> openAddStockWindow());
         JButton updateStockBtn = new JButton("Update Stock");
@@ -104,7 +120,7 @@ public class mainGUI extends JFrame {
         List<JButton> stockButtons = Arrays.asList(addStockBtn, updateStockBtn, deleteStockBtn, viewStockBtn);
         JPanel stockPanel = createCollapsiblePanel("Stock", stockButtons);
 
-        // Faulty Items operations buttons.
+        // Faulty Items operations.
         JButton addFaultyItemBtn = new JButton("Add Faulty Item");
         addFaultyItemBtn.addActionListener(e -> openAddFaultyItemWindow());
         JButton updateFaultyItemBtn = new JButton("Update Faulty Item");
@@ -116,7 +132,7 @@ public class mainGUI extends JFrame {
         List<JButton> faultyItemsButtons = Arrays.asList(addFaultyItemBtn, updateFaultyItemBtn, deleteFaultyItemBtn, viewFaultyItemsBtn);
         JPanel faultyItemsPanel = createCollapsiblePanel("Faulty Items", faultyItemsButtons);
 
-        // Orders operations buttons.
+        // Orders operations.
         JButton addOrderBtn = new JButton("Add Order");
         addOrderBtn.addActionListener(e -> openAddOrderWindow());
         JButton updateOrderBtn = new JButton("Update Order");
@@ -128,7 +144,31 @@ public class mainGUI extends JFrame {
         List<JButton> orderButtons = Arrays.asList(addOrderBtn, updateOrderBtn, deleteOrderBtn, viewOrdersBtn);
         JPanel ordersPanel = createCollapsiblePanel("Orders", orderButtons);
 
-        // Add panels and spacing.
+        // Equipment operations.
+        JButton addEquipmentBtn = new JButton("Add Equipment");
+        addEquipmentBtn.addActionListener(e -> openAddEquipmentWindow());
+        JButton updateEquipmentBtn = new JButton("Update Equipment");
+        updateEquipmentBtn.addActionListener(e -> openUpdateEquipmentWindow());
+        JButton deleteEquipmentBtn = new JButton("Delete Equipment");
+        deleteEquipmentBtn.addActionListener(e -> openDeleteEquipmentWindow());
+        JButton viewEquipmentBtn = new JButton("View Equipment");
+        viewEquipmentBtn.addActionListener(e -> openViewEquipmentWindow());
+        List<JButton> equipmentButtons = Arrays.asList(addEquipmentBtn, updateEquipmentBtn, deleteEquipmentBtn, viewEquipmentBtn);
+        JPanel equipmentPanel = createCollapsiblePanel("Equipment", equipmentButtons);
+
+        // Staff operations.
+        JButton addStaffBtn = new JButton("Add Staff");
+        addStaffBtn.addActionListener(e -> openAddStaffWindow());
+        JButton updateStaffBtn = new JButton("Update Staff");
+        updateStaffBtn.addActionListener(e -> openUpdateStaffWindow());
+        JButton deleteStaffBtn = new JButton("Delete Staff");
+        deleteStaffBtn.addActionListener(e -> openDeleteStaffWindow());
+        JButton viewStaffBtn = new JButton("View Staff");
+        viewStaffBtn.addActionListener(e -> openViewStaffWindow());
+        List<JButton> staffButtons = Arrays.asList(addStaffBtn, updateStaffBtn, deleteStaffBtn, viewStaffBtn);
+        JPanel staffPanel = createCollapsiblePanel("Staff", staffButtons);
+
+        // Add sections with spacing.
         sideMenu.add(Box.createRigidArea(new Dimension(0, 20)));
         sideMenu.add(customerPanel);
         sideMenu.add(Box.createRigidArea(new Dimension(0, 20)));
@@ -137,44 +177,41 @@ public class mainGUI extends JFrame {
         sideMenu.add(faultyItemsPanel);
         sideMenu.add(Box.createRigidArea(new Dimension(0, 20)));
         sideMenu.add(ordersPanel);
+        sideMenu.add(Box.createRigidArea(new Dimension(0, 20)));
+        sideMenu.add(equipmentPanel);
+        sideMenu.add(Box.createRigidArea(new Dimension(0, 20)));
+        sideMenu.add(staffPanel);
         sideMenu.add(Box.createVerticalGlue());
         return sideMenu;
     }
 
-    // ---------------- Customer Operation Windows ----------------
-    private void openAddCustomerWindow() {
-        JFrame frame = new JFrame("Add Customer");
-        frame.setSize(700, 500);
-        frame.setLocationRelativeTo(this);
-        JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
+    // ---------------- Operation Panels ----------------
+    // All operations now update the center panel.
 
+    // Customer Operations
+    private void openAddCustomerWindow() {
+        JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
         panel.add(new JLabel("First Name:"));
         JTextField firstNameField = new JTextField();
         panel.add(firstNameField);
-
         panel.add(new JLabel("Last Name:"));
         JTextField lastNameField = new JTextField();
         panel.add(lastNameField);
-
         panel.add(new JLabel("Address:"));
         JTextField addressField = new JTextField();
         panel.add(addressField);
-
         panel.add(new JLabel("Email:"));
         JTextField emailField = new JTextField();
         panel.add(emailField);
-
         panel.add(new JLabel("Phone Number:"));
         JTextField phoneField = new JTextField();
         panel.add(phoneField);
-
         JButton addButton = new JButton("Add");
+        addButton.setPreferredSize(BUTTON_SIZE);
         panel.add(addButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
-
-        frame.add(panel);
-        frame.setVisible(true);
+        setCenterPanel(panel);
 
         addButton.addActionListener(e -> {
             Map<String, Object> customerData = new HashMap<>();
@@ -183,63 +220,49 @@ public class mainGUI extends JFrame {
             customerData.put("address", addressField.getText());
             customerData.put("email", emailField.getText());
             customerData.put("phoneNumber", phoneField.getText());
-
             int rowsAffected = insertRecord("Customer", customerData);
             if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(frame, "Customer added successfully.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Customer added successfully.");
             } else {
-                JOptionPane.showMessageDialog(frame, "Error adding customer.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Error adding customer.");
             }
-            frame.dispose();
+            setCenterPanel(createPlaceholderPanel());
         });
-
-        cancelButton.addActionListener(e -> frame.dispose());
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
     }
 
     private void openUpdateCustomerWindow() {
-        JFrame frame = new JFrame("Update Customer");
-        frame.setSize(400, 350);
-        frame.setLocationRelativeTo(this);
         JPanel panel = new JPanel(new GridLayout(7, 2, 10, 10));
-
         panel.add(new JLabel("Customer ID:"));
         JTextField idField = new JTextField();
         panel.add(idField);
-
         panel.add(new JLabel("New First Name:"));
         JTextField firstNameField = new JTextField();
         panel.add(firstNameField);
-
         panel.add(new JLabel("New Last Name:"));
         JTextField lastNameField = new JTextField();
         panel.add(lastNameField);
-
         panel.add(new JLabel("New Address:"));
         JTextField addressField = new JTextField();
         panel.add(addressField);
-
         panel.add(new JLabel("New Email:"));
         JTextField emailField = new JTextField();
         panel.add(emailField);
-
         panel.add(new JLabel("New Phone Number:"));
         JTextField phoneField = new JTextField();
         panel.add(phoneField);
-
         JButton updateButton = new JButton("Update");
         panel.add(updateButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
-
-        frame.add(panel);
-        frame.setVisible(true);
+        setCenterPanel(panel);
 
         updateButton.addActionListener(e -> {
             int customerId;
             try {
                 customerId = Integer.parseInt(idField.getText());
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Invalid Customer ID");
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Customer ID");
                 return;
             }
             int rowsAffected = updateCustomer(
@@ -251,62 +274,51 @@ public class mainGUI extends JFrame {
                     phoneField.getText()
             );
             if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(frame, "Customer updated successfully.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Customer updated successfully.");
             } else {
-                JOptionPane.showMessageDialog(frame, "Error updating customer.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Error updating customer.");
             }
-            frame.dispose();
+            setCenterPanel(createPlaceholderPanel());
         });
-
-        cancelButton.addActionListener(e -> frame.dispose());
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
     }
 
     private void openDeleteCustomerWindow() {
-        JFrame frame = new JFrame("Delete Customer");
-        frame.setSize(300, 150);
-        frame.setLocationRelativeTo(this);
         JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
-
         panel.add(new JLabel("Customer ID:"));
         JTextField idField = new JTextField();
         panel.add(idField);
-
         JButton deleteButton = new JButton("Delete");
+        deleteButton.setPreferredSize(BUTTON_SIZE);
         panel.add(deleteButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
-
-        frame.add(panel);
-        frame.setVisible(true);
+        setCenterPanel(panel);
 
         deleteButton.addActionListener(e -> {
             int customerId;
             try {
                 customerId = Integer.parseInt(idField.getText());
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Invalid Customer ID");
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Customer ID");
                 return;
             }
             int rowsAffected = deleteCustomer(customerId);
             if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(frame, "Customer deleted successfully.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Customer deleted successfully.");
             } else {
-                JOptionPane.showMessageDialog(frame, "Error deleting customer.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Error deleting customer.");
             }
-            frame.dispose();
+            setCenterPanel(createPlaceholderPanel());
         });
-
-        cancelButton.addActionListener(e -> frame.dispose());
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
     }
 
     private void openViewCustomersWindow() {
-        JFrame frame = new JFrame("View Customers");
-        frame.setSize(600, 400);
-        frame.setLocationRelativeTo(this);
-
         List<Map<String, String>> customers = GenericDatabaseManager.fetchData("Customer");
         if (customers.isEmpty()) {
-            JOptionPane.showMessageDialog(frame, "No customer data available.");
+            JOptionPane.showMessageDialog(mainGUI.this, "No customer data available.");
+            setCenterPanel(createPlaceholderPanel());
             return;
         }
         Set<String> columns = customers.get(0).keySet();
@@ -321,51 +333,75 @@ public class mainGUI extends JFrame {
         }
         JTable table = new JTable(data, columnNames);
         JScrollPane scrollPane = new JScrollPane(table);
-        frame.add(scrollPane);
-        frame.setVisible(true);
-    }
-
-    // ---------------- Stock Operation Windows ----------------
-    private void openAddStockWindow() {
-        JFrame frame = new JFrame("Add Stock");
-        frame.setSize(400, 300);
-        frame.setLocationRelativeTo(this);
         JPanel panel = new JPanel(new BorderLayout());
-        JLabel label = new JLabel("Add Stock functionality not implemented yet.", SwingConstants.CENTER);
-        panel.add(label, BorderLayout.CENTER);
-        frame.add(panel);
-        frame.setVisible(true);
+        panel.add(scrollPane, BorderLayout.CENTER);
+        setCenterPanel(panel);
     }
 
-    private void openUpdateStockWindow() {
-        JFrame frame = new JFrame("Update Stock");
-        frame.setSize(400, 350);
-        frame.setLocationRelativeTo(this);
-        JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
-
-        panel.add(new JLabel("Stock ID:"));
-        JTextField idField = new JTextField();
-        panel.add(idField);
-
+    // Stock Operations
+    private void openAddStockWindow() {
+        JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
         panel.add(new JLabel("Product Name:"));
         JTextField productField = new JTextField();
         panel.add(productField);
-
         panel.add(new JLabel("Quantity:"));
         JTextField quantityField = new JTextField();
         panel.add(quantityField);
-
         panel.add(new JLabel("Price:"));
         JTextField priceField = new JTextField();
         panel.add(priceField);
+        JButton addButton = new JButton("Add");
+        addButton.setPreferredSize(BUTTON_SIZE);
+        panel.add(addButton);
+        JButton cancelButton = new JButton("Cancel");
+        panel.add(cancelButton);
+        setCenterPanel(panel);
 
+        addButton.addActionListener(e -> {
+            Map<String, Object> stockData = new HashMap<>();
+            stockData.put("prodName", productField.getText());
+            try {
+                stockData.put("quantity", Integer.parseInt(quantityField.getText()));
+            } catch(NumberFormatException ex) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid quantity.");
+                return;
+            }
+            try {
+                stockData.put("price", Integer.parseInt(priceField.getText()));
+            } catch(NumberFormatException ex) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid price.");
+                return;
+            }
+            int rowsAffected = insertRecord("Stock", stockData);
+            if(rowsAffected > 0){
+                JOptionPane.showMessageDialog(mainGUI.this, "Stock added successfully.");
+            } else {
+                JOptionPane.showMessageDialog(mainGUI.this, "Error adding stock.");
+            }
+            setCenterPanel(createPlaceholderPanel());
+        });
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
+    }
+
+    private void openUpdateStockWindow() {
+        JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
+        panel.add(new JLabel("Stock ID:"));
+        JTextField idField = new JTextField();
+        panel.add(idField);
+        panel.add(new JLabel("Product Name:"));
+        JTextField productField = new JTextField();
+        panel.add(productField);
+        panel.add(new JLabel("Quantity:"));
+        JTextField quantityField = new JTextField();
+        panel.add(quantityField);
+        panel.add(new JLabel("Price:"));
+        JTextField priceField = new JTextField();
+        panel.add(priceField);
         JButton updateButton = new JButton("Update");
         panel.add(updateButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
-
-        frame.add(panel);
-        frame.setVisible(true);
+        setCenterPanel(panel);
 
         updateButton.addActionListener(e -> {
             int stockId, quantity, price;
@@ -374,100 +410,96 @@ public class mainGUI extends JFrame {
                 quantity = Integer.parseInt(quantityField.getText());
                 price = Integer.parseInt(priceField.getText());
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Invalid input. Please enter valid numbers for Stock ID, Quantity, and Price.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid input. Please enter valid numbers for Stock ID, Quantity, and Price.");
                 return;
             }
             int rowsAffected = updateStock(stockId, productField.getText(), quantity, price);
             if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(frame, "Stock updated successfully.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Stock updated successfully.");
             } else {
-                JOptionPane.showMessageDialog(frame, "Error updating stock.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Error updating stock.");
             }
-            frame.dispose();
+            setCenterPanel(createPlaceholderPanel());
         });
-
-        cancelButton.addActionListener(e -> frame.dispose());
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
     }
 
     private void openDeleteStockWindow() {
-        JFrame frame = new JFrame("Delete Stock");
-        frame.setSize(300, 150);
-        frame.setLocationRelativeTo(this);
         JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
-
         panel.add(new JLabel("Stock ID:"));
         JTextField idField = new JTextField();
         panel.add(idField);
-
         JButton deleteButton = new JButton("Delete");
+        deleteButton.setPreferredSize(BUTTON_SIZE);
         panel.add(deleteButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
-
-        frame.add(panel);
-        frame.setVisible(true);
+        setCenterPanel(panel);
 
         deleteButton.addActionListener(e -> {
             int stockId;
             try {
                 stockId = Integer.parseInt(idField.getText());
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Invalid Stock ID");
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Stock ID");
                 return;
             }
             int rowsAffected = deleteStock(stockId);
             if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(frame, "Stock deleted successfully.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Stock deleted successfully.");
             } else {
-                JOptionPane.showMessageDialog(frame, "Error deleting stock.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Error deleting stock.");
             }
-            frame.dispose();
+            setCenterPanel(createPlaceholderPanel());
         });
-
-        cancelButton.addActionListener(e -> frame.dispose());
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
     }
 
     private void openViewStockWindow() {
-        JFrame frame = new JFrame("View Stock");
-        frame.setSize(600, 400);
-        frame.setLocationRelativeTo(this);
+        List<Map<String, String>> stock = GenericDatabaseManager.fetchData("Stock");
+        if(stock.isEmpty()){
+            JOptionPane.showMessageDialog(mainGUI.this, "No stock data available.");
+            setCenterPanel(createPlaceholderPanel());
+            return;
+        }
+        Set<String> columns = stock.get(0).keySet();
+        String[] columnNames = columns.toArray(new String[0]);
+        Object[][] data = new Object[stock.size()][columnNames.length];
+        for (int i = 0; i < stock.size(); i++) {
+            Map<String, String> record = stock.get(i);
+            int j = 0;
+            for (String col : columnNames) {
+                data[i][j++] = record.get(col);
+            }
+        }
+        JTable table = new JTable(data, columnNames);
+        JScrollPane scrollPane = new JScrollPane(table);
         JPanel panel = new JPanel(new BorderLayout());
-        JLabel label = new JLabel("View Stock functionality not implemented yet.", SwingConstants.CENTER);
-        panel.add(label, BorderLayout.CENTER);
-        frame.add(panel);
-        frame.setVisible(true);
+        panel.add(scrollPane, BorderLayout.CENTER);
+        setCenterPanel(panel);
     }
 
-    // ---------------- Faulty Items Operation Windows ----------------
+    // Faulty Items Operations
     private void openAddFaultyItemWindow() {
-        JFrame frame = new JFrame("Add Faulty Item");
-        frame.setSize(700, 500);
-        frame.setLocationRelativeTo(this);
         JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
-
         panel.add(new JLabel("Item Name:"));
         JTextField itemNameField = new JTextField();
         panel.add(itemNameField);
-
         panel.add(new JLabel("Description:"));
         JTextField descriptionField = new JTextField();
         panel.add(descriptionField);
-
         panel.add(new JLabel("Quantity:"));
         JTextField quantityField = new JTextField();
         panel.add(quantityField);
-
         panel.add(new JLabel("Reported Date (YYYY-MM-DD):"));
         JTextField reportedDateField = new JTextField();
         panel.add(reportedDateField);
-
         JButton addButton = new JButton("Add");
+        addButton.setPreferredSize(BUTTON_SIZE);
         panel.add(addButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
-
-        frame.add(panel);
-        frame.setVisible(true);
+        setCenterPanel(panel);
 
         addButton.addActionListener(e -> {
             Map<String, Object> faultyItemData = new HashMap<>();
@@ -476,70 +508,57 @@ public class mainGUI extends JFrame {
             try {
                 faultyItemData.put("quantity", Integer.parseInt(quantityField.getText()));
             } catch(NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Invalid quantity.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid quantity.");
                 return;
             }
             faultyItemData.put("reportedDate", reportedDateField.getText());
-
             int rowsAffected = insertRecord("FaultyItems", faultyItemData);
             if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(frame, "Faulty item added successfully.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Faulty item added successfully.");
             } else {
-                JOptionPane.showMessageDialog(frame, "Error adding faulty item.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Error adding faulty item.");
             }
-            frame.dispose();
+            setCenterPanel(createPlaceholderPanel());
         });
-
-        cancelButton.addActionListener(e -> frame.dispose());
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
     }
 
     private void openUpdateFaultyItemWindow() {
-        JFrame frame = new JFrame("Update Faulty Item");
-        frame.setSize(400, 400);
-        frame.setLocationRelativeTo(this);
         JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
-
         panel.add(new JLabel("Faulty Item ID:"));
         JTextField idField = new JTextField();
         panel.add(idField);
-
         panel.add(new JLabel("New Item Name:"));
         JTextField itemNameField = new JTextField();
         panel.add(itemNameField);
-
         panel.add(new JLabel("New Description:"));
         JTextField descriptionField = new JTextField();
         panel.add(descriptionField);
-
         panel.add(new JLabel("New Quantity:"));
         JTextField quantityField = new JTextField();
         panel.add(quantityField);
-
         panel.add(new JLabel("New Reported Date (YYYY-MM-DD):"));
         JTextField reportedDateField = new JTextField();
         panel.add(reportedDateField);
-
         JButton updateButton = new JButton("Update");
         panel.add(updateButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
-
-        frame.add(panel);
-        frame.setVisible(true);
+        setCenterPanel(panel);
 
         updateButton.addActionListener(e -> {
             int itemId;
             try {
                 itemId = Integer.parseInt(idField.getText());
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Invalid Faulty Item ID");
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Faulty Item ID");
                 return;
             }
             int quantity;
             try {
                 quantity = Integer.parseInt(quantityField.getText());
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Invalid quantity.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid quantity.");
                 return;
             }
             int rowsAffected = updateFaultyItem(
@@ -550,62 +569,51 @@ public class mainGUI extends JFrame {
                     reportedDateField.getText()
             );
             if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(frame, "Faulty item updated successfully.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Faulty item updated successfully.");
             } else {
-                JOptionPane.showMessageDialog(frame, "Error updating faulty item.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Error updating faulty item.");
             }
-            frame.dispose();
+            setCenterPanel(createPlaceholderPanel());
         });
-
-        cancelButton.addActionListener(e -> frame.dispose());
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
     }
 
     private void openDeleteFaultyItemWindow() {
-        JFrame frame = new JFrame("Delete Faulty Item");
-        frame.setSize(300, 150);
-        frame.setLocationRelativeTo(this);
         JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
-
         panel.add(new JLabel("Faulty Item ID:"));
         JTextField idField = new JTextField();
         panel.add(idField);
-
         JButton deleteButton = new JButton("Delete");
+        deleteButton.setPreferredSize(BUTTON_SIZE);
         panel.add(deleteButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
-
-        frame.add(panel);
-        frame.setVisible(true);
+        setCenterPanel(panel);
 
         deleteButton.addActionListener(e -> {
             int itemId;
             try {
                 itemId = Integer.parseInt(idField.getText());
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Invalid Faulty Item ID");
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Faulty Item ID");
                 return;
             }
             int rowsAffected = deleteFaultyItem(itemId);
             if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(frame, "Faulty item deleted successfully.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Faulty item deleted successfully.");
             } else {
-                JOptionPane.showMessageDialog(frame, "Error deleting faulty item.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Error deleting faulty item.");
             }
-            frame.dispose();
+            setCenterPanel(createPlaceholderPanel());
         });
-
-        cancelButton.addActionListener(e -> frame.dispose());
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
     }
 
     private void openViewFaultyItemsWindow() {
-        JFrame frame = new JFrame("View Faulty Items");
-        frame.setSize(600, 400);
-        frame.setLocationRelativeTo(this);
-
         List<Map<String, String>> items = GenericDatabaseManager.fetchData("FaultyItems");
         if (items.isEmpty()) {
-            JOptionPane.showMessageDialog(frame, "No faulty items data available.");
+            JOptionPane.showMessageDialog(mainGUI.this, "No faulty items data available.");
+            setCenterPanel(createPlaceholderPanel());
             return;
         }
         Set<String> columns = items.get(0).keySet();
@@ -620,103 +628,82 @@ public class mainGUI extends JFrame {
         }
         JTable table = new JTable(data, columnNames);
         JScrollPane scrollPane = new JScrollPane(table);
-        frame.add(scrollPane);
-        frame.setVisible(true);
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(scrollPane, BorderLayout.CENTER);
+        setCenterPanel(panel);
     }
 
-    // ---------------- Orders Operation Windows ----------------
+    // Orders Operations
     private void openAddOrderWindow() {
-        JFrame frame = new JFrame("Add Order");
-        frame.setSize(700, 500);
-        frame.setLocationRelativeTo(this);
         JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
-
         panel.add(new JLabel("Customer ID:"));
         JTextField customerIdField = new JTextField();
         panel.add(customerIdField);
-
         panel.add(new JLabel("Order Date (YYYY-MM-DD):"));
         JTextField orderDateField = new JTextField();
         panel.add(orderDateField);
-
         panel.add(new JLabel("Total Amount:"));
         JTextField totalAmountField = new JTextField();
         panel.add(totalAmountField);
-
         panel.add(new JLabel("Status:"));
         JTextField statusField = new JTextField();
         panel.add(statusField);
-
         JButton addButton = new JButton("Add");
+        addButton.setPreferredSize(BUTTON_SIZE);
         panel.add(addButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
-
-        frame.add(panel);
-        frame.setVisible(true);
+        setCenterPanel(panel);
 
         addButton.addActionListener(e -> {
             Map<String, Object> orderData = new HashMap<>();
             try {
                 orderData.put("customerId", Integer.parseInt(customerIdField.getText()));
             } catch(NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Invalid Customer ID.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Customer ID.");
                 return;
             }
             orderData.put("orderDate", orderDateField.getText());
             try {
                 orderData.put("totalAmount", Double.parseDouble(totalAmountField.getText()));
             } catch(NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Invalid Total Amount.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Total Amount.");
                 return;
             }
             orderData.put("status", statusField.getText());
-
             int rowsAffected = insertRecord("Orders", orderData);
             if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(frame, "Order added successfully.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Order added successfully.");
             } else {
-                JOptionPane.showMessageDialog(frame, "Error adding order.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Error adding order.");
             }
-            frame.dispose();
+            setCenterPanel(createPlaceholderPanel());
         });
-
-        cancelButton.addActionListener(e -> frame.dispose());
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
     }
 
     private void openUpdateOrderWindow() {
-        JFrame frame = new JFrame("Update Order");
-        frame.setSize(400, 400);
-        frame.setLocationRelativeTo(this);
         JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
-
         panel.add(new JLabel("Order ID:"));
         JTextField orderIdField = new JTextField();
         panel.add(orderIdField);
-
         panel.add(new JLabel("New Customer ID:"));
         JTextField customerIdField = new JTextField();
         panel.add(customerIdField);
-
         panel.add(new JLabel("New Order Date (YYYY-MM-DD):"));
         JTextField orderDateField = new JTextField();
         panel.add(orderDateField);
-
         panel.add(new JLabel("New Total Amount:"));
         JTextField totalAmountField = new JTextField();
         panel.add(totalAmountField);
-
         panel.add(new JLabel("New Status:"));
         JTextField statusField = new JTextField();
         panel.add(statusField);
-
         JButton updateButton = new JButton("Update");
         panel.add(updateButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
-
-        frame.add(panel);
-        frame.setVisible(true);
+        setCenterPanel(panel);
 
         updateButton.addActionListener(e -> {
             int orderId, customerId;
@@ -724,14 +711,14 @@ public class mainGUI extends JFrame {
                 orderId = Integer.parseInt(orderIdField.getText());
                 customerId = Integer.parseInt(customerIdField.getText());
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Invalid Order ID or Customer ID");
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Order ID or Customer ID");
                 return;
             }
             double totalAmount;
             try {
                 totalAmount = Double.parseDouble(totalAmountField.getText());
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Invalid Total Amount");
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Total Amount");
                 return;
             }
             int rowsAffected = updateOrder(
@@ -742,62 +729,51 @@ public class mainGUI extends JFrame {
                     statusField.getText()
             );
             if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(frame, "Order updated successfully.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Order updated successfully.");
             } else {
-                JOptionPane.showMessageDialog(frame, "Error updating order.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Error updating order.");
             }
-            frame.dispose();
+            setCenterPanel(createPlaceholderPanel());
         });
-
-        cancelButton.addActionListener(e -> frame.dispose());
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
     }
 
     private void openDeleteOrderWindow() {
-        JFrame frame = new JFrame("Delete Order");
-        frame.setSize(300, 150);
-        frame.setLocationRelativeTo(this);
         JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
-
         panel.add(new JLabel("Order ID:"));
         JTextField orderIdField = new JTextField();
         panel.add(orderIdField);
-
         JButton deleteButton = new JButton("Delete");
+        deleteButton.setPreferredSize(BUTTON_SIZE);
         panel.add(deleteButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
-
-        frame.add(panel);
-        frame.setVisible(true);
+        setCenterPanel(panel);
 
         deleteButton.addActionListener(e -> {
             int orderId;
             try {
                 orderId = Integer.parseInt(orderIdField.getText());
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "Invalid Order ID");
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Order ID");
                 return;
             }
             int rowsAffected = deleteOrder(orderId);
             if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(frame, "Order deleted successfully.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Order deleted successfully.");
             } else {
-                JOptionPane.showMessageDialog(frame, "Error deleting order.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Error deleting order.");
             }
-            frame.dispose();
+            setCenterPanel(createPlaceholderPanel());
         });
-
-        cancelButton.addActionListener(e -> frame.dispose());
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
     }
 
     private void openViewOrdersWindow() {
-        JFrame frame = new JFrame("View Orders");
-        frame.setSize(600, 400);
-        frame.setLocationRelativeTo(this);
-
         List<Map<String, String>> orders = GenericDatabaseManager.fetchData("Orders");
         if (orders.isEmpty()) {
-            JOptionPane.showMessageDialog(frame, "No orders data available.");
+            JOptionPane.showMessageDialog(mainGUI.this, "No orders data available.");
+            setCenterPanel(createPlaceholderPanel());
             return;
         }
         Set<String> columns = orders.get(0).keySet();
@@ -812,8 +788,288 @@ public class mainGUI extends JFrame {
         }
         JTable table = new JTable(data, columnNames);
         JScrollPane scrollPane = new JScrollPane(table);
-        frame.add(scrollPane);
-        frame.setVisible(true);
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(scrollPane, BorderLayout.CENTER);
+        setCenterPanel(panel);
+    }
+
+    // Equipment Operations
+    private void openAddEquipmentWindow() {
+        JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
+        panel.add(new JLabel("Equipment Name:"));
+        JTextField equipmentNameField = new JTextField();
+        panel.add(equipmentNameField);
+        panel.add(new JLabel("Equipment Type:"));
+        JTextField equipmentTypeField = new JTextField();
+        panel.add(equipmentTypeField);
+        panel.add(new JLabel("Purchase Date (YYYY-MM-DD):"));
+        JTextField purchaseDateField = new JTextField();
+        panel.add(purchaseDateField);
+        panel.add(new JLabel("Status:"));
+        JTextField statusField = new JTextField();
+        panel.add(statusField);
+        JButton addButton = new JButton("Add");
+        addButton.setPreferredSize(BUTTON_SIZE);
+        panel.add(addButton);
+        JButton cancelButton = new JButton("Cancel");
+        panel.add(cancelButton);
+        setCenterPanel(panel);
+
+        addButton.addActionListener(e -> {
+            Map<String, Object> equipmentData = new HashMap<>();
+            equipmentData.put("equipmentName", equipmentNameField.getText());
+            equipmentData.put("equipmentType", equipmentTypeField.getText());
+            equipmentData.put("purchaseDate", purchaseDateField.getText());
+            equipmentData.put("status", statusField.getText());
+            int rowsAffected = insertRecord("Equipment", equipmentData);
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Equipment added successfully.");
+            } else {
+                JOptionPane.showMessageDialog(mainGUI.this, "Error adding equipment.");
+            }
+            setCenterPanel(createPlaceholderPanel());
+        });
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
+    }
+
+    private void openUpdateEquipmentWindow() {
+        JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
+        panel.add(new JLabel("Equipment ID:"));
+        JTextField idField = new JTextField();
+        panel.add(idField);
+        panel.add(new JLabel("New Equipment Name:"));
+        JTextField equipmentNameField = new JTextField();
+        panel.add(equipmentNameField);
+        panel.add(new JLabel("New Equipment Type:"));
+        JTextField equipmentTypeField = new JTextField();
+        panel.add(equipmentTypeField);
+        panel.add(new JLabel("New Purchase Date (YYYY-MM-DD):"));
+        JTextField purchaseDateField = new JTextField();
+        panel.add(purchaseDateField);
+        panel.add(new JLabel("New Status:"));
+        JTextField statusField = new JTextField();
+        panel.add(statusField);
+        JButton updateButton = new JButton("Update");
+        panel.add(updateButton);
+        JButton cancelButton = new JButton("Cancel");
+        panel.add(cancelButton);
+        setCenterPanel(panel);
+
+        updateButton.addActionListener(e -> {
+            int equipmentId;
+            try {
+                equipmentId = Integer.parseInt(idField.getText());
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Equipment ID");
+                return;
+            }
+            int rowsAffected = updateEquipment(equipmentId, equipmentNameField.getText(), equipmentTypeField.getText(), purchaseDateField.getText(), statusField.getText());
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Equipment updated successfully.");
+            } else {
+                JOptionPane.showMessageDialog(mainGUI.this, "Error updating equipment.");
+            }
+            setCenterPanel(createPlaceholderPanel());
+        });
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
+    }
+
+    private void openDeleteEquipmentWindow() {
+        JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
+        panel.add(new JLabel("Equipment ID:"));
+        JTextField idField = new JTextField();
+        panel.add(idField);
+        JButton deleteButton = new JButton("Delete");
+        deleteButton.setPreferredSize(BUTTON_SIZE);
+        panel.add(deleteButton);
+        JButton cancelButton = new JButton("Cancel");
+        panel.add(cancelButton);
+        setCenterPanel(panel);
+
+        deleteButton.addActionListener(e -> {
+            int equipmentId;
+            try {
+                equipmentId = Integer.parseInt(idField.getText());
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Equipment ID");
+                return;
+            }
+            int rowsAffected = deleteEquipment(equipmentId);
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Equipment deleted successfully.");
+            } else {
+                JOptionPane.showMessageDialog(mainGUI.this, "Error deleting equipment.");
+            }
+            setCenterPanel(createPlaceholderPanel());
+        });
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
+    }
+
+    private void openViewEquipmentWindow() {
+        List<Map<String, String>> equipmentList = GenericDatabaseManager.fetchData("Equipment");
+        if (equipmentList.isEmpty()) {
+            JOptionPane.showMessageDialog(mainGUI.this, "No equipment data available.");
+            setCenterPanel(createPlaceholderPanel());
+            return;
+        }
+        Set<String> columns = equipmentList.get(0).keySet();
+        String[] columnNames = columns.toArray(new String[0]);
+        Object[][] data = new Object[equipmentList.size()][columnNames.length];
+        for (int i = 0; i < equipmentList.size(); i++) {
+            Map<String, String> record = equipmentList.get(i);
+            int j = 0;
+            for (String col : columnNames) {
+                data[i][j++] = record.get(col);
+            }
+        }
+        JTable table = new JTable(data, columnNames);
+        JScrollPane scrollPane = new JScrollPane(table);
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(scrollPane, BorderLayout.CENTER);
+        setCenterPanel(panel);
+    }
+
+    // Staff Operations
+    private void openAddStaffWindow() {
+        JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
+        panel.add(new JLabel("First Name:"));
+        JTextField firstNameField = new JTextField();
+        panel.add(firstNameField);
+        panel.add(new JLabel("Last Name:"));
+        JTextField lastNameField = new JTextField();
+        panel.add(lastNameField);
+        panel.add(new JLabel("Role:"));
+        JTextField roleField = new JTextField();
+        panel.add(roleField);
+        panel.add(new JLabel("Email:"));
+        JTextField emailField = new JTextField();
+        panel.add(emailField);
+        panel.add(new JLabel("Phone Number:"));
+        JTextField phoneField = new JTextField();
+        panel.add(phoneField);
+        JButton addButton = new JButton("Add");
+        addButton.setPreferredSize(BUTTON_SIZE);
+        panel.add(addButton);
+        JButton cancelButton = new JButton("Cancel");
+        panel.add(cancelButton);
+        setCenterPanel(panel);
+
+        addButton.addActionListener(e -> {
+            Map<String, Object> staffData = new HashMap<>();
+            staffData.put("firstName", firstNameField.getText());
+            staffData.put("lastName", lastNameField.getText());
+            staffData.put("role", roleField.getText());
+            staffData.put("email", emailField.getText());
+            staffData.put("phoneNumber", phoneField.getText());
+            int rowsAffected = insertRecord("Staff", staffData);
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Staff added successfully.");
+            } else {
+                JOptionPane.showMessageDialog(mainGUI.this, "Error adding staff.");
+            }
+            setCenterPanel(createPlaceholderPanel());
+        });
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
+    }
+
+    private void openUpdateStaffWindow() {
+        JPanel panel = new JPanel(new GridLayout(7, 2, 10, 10));
+        panel.add(new JLabel("Staff ID:"));
+        JTextField idField = new JTextField();
+        panel.add(idField);
+        panel.add(new JLabel("New First Name:"));
+        JTextField firstNameField = new JTextField();
+        panel.add(firstNameField);
+        panel.add(new JLabel("New Last Name:"));
+        JTextField lastNameField = new JTextField();
+        panel.add(lastNameField);
+        panel.add(new JLabel("New Role:"));
+        JTextField roleField = new JTextField();
+        panel.add(roleField);
+        panel.add(new JLabel("New Email:"));
+        JTextField emailField = new JTextField();
+        panel.add(emailField);
+        panel.add(new JLabel("New Phone Number:"));
+        JTextField phoneField = new JTextField();
+        panel.add(phoneField);
+        JButton updateButton = new JButton("Update");
+        panel.add(updateButton);
+        JButton cancelButton = new JButton("Cancel");
+        panel.add(cancelButton);
+        setCenterPanel(panel);
+
+        updateButton.addActionListener(e -> {
+            int staffId;
+            try {
+                staffId = Integer.parseInt(idField.getText());
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Staff ID");
+                return;
+            }
+            int rowsAffected = updateStaff(staffId, firstNameField.getText(), lastNameField.getText(), roleField.getText(), emailField.getText(), phoneField.getText());
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Staff updated successfully.");
+            } else {
+                JOptionPane.showMessageDialog(mainGUI.this, "Error updating staff.");
+            }
+            setCenterPanel(createPlaceholderPanel());
+        });
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
+    }
+
+    private void openDeleteStaffWindow() {
+        JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
+        panel.add(new JLabel("Staff ID:"));
+        JTextField idField = new JTextField();
+        panel.add(idField);
+        JButton deleteButton = new JButton("Delete");
+        deleteButton.setPreferredSize(BUTTON_SIZE);
+        panel.add(deleteButton);
+        JButton cancelButton = new JButton("Cancel");
+        panel.add(cancelButton);
+        setCenterPanel(panel);
+
+        deleteButton.addActionListener(e -> {
+            int staffId;
+            try {
+                staffId = Integer.parseInt(idField.getText());
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Staff ID");
+                return;
+            }
+            int rowsAffected = deleteStaff(staffId);
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Staff deleted successfully.");
+            } else {
+                JOptionPane.showMessageDialog(mainGUI.this, "Error deleting staff.");
+            }
+            setCenterPanel(createPlaceholderPanel());
+        });
+        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
+    }
+
+    private void openViewStaffWindow() {
+        List<Map<String, String>> staffList = GenericDatabaseManager.fetchData("Staff");
+        if (staffList.isEmpty()) {
+            JOptionPane.showMessageDialog(mainGUI.this, "No staff data available.");
+            setCenterPanel(createPlaceholderPanel());
+            return;
+        }
+        Set<String> columns = staffList.get(0).keySet();
+        String[] columnNames = columns.toArray(new String[0]);
+        Object[][] data = new Object[staffList.size()][columnNames.length];
+        for (int i = 0; i < staffList.size(); i++) {
+            Map<String, String> record = staffList.get(i);
+            int j = 0;
+            for (String col : columnNames) {
+                data[i][j++] = record.get(col);
+            }
+        }
+        JTable table = new JTable(data, columnNames);
+        JScrollPane scrollPane = new JScrollPane(table);
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(scrollPane, BorderLayout.CENTER);
+        setCenterPanel(panel);
     }
 
     // -------------- Database Helper Methods --------------
@@ -960,7 +1216,68 @@ public class mainGUI extends JFrame {
         return rowsAffected;
     }
 
+    private int updateEquipment(int equipmentId, String equipmentName, String equipmentType, String purchaseDate, String status) {
+        int rowsAffected = 0;
+        String query = "UPDATE Equipment SET equipmentName = ?, equipmentType = ?, purchaseDate = ?, status = ? WHERE equipmentId = ?";
+        try (Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
+             PreparedStatement pstat = connection.prepareStatement(query)) {
+            pstat.setString(1, equipmentName);
+            pstat.setString(2, equipmentType);
+            pstat.setString(3, purchaseDate);
+            pstat.setString(4, status);
+            pstat.setInt(5, equipmentId);
+            rowsAffected = pstat.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rowsAffected;
+    }
+
+    private int deleteEquipment(int equipmentId) {
+        int rowsAffected = 0;
+        String query = "DELETE FROM Equipment WHERE equipmentId = ?";
+        try (Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
+             PreparedStatement pstat = connection.prepareStatement(query)) {
+            pstat.setInt(1, equipmentId);
+            rowsAffected = pstat.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rowsAffected;
+    }
+
+    private int updateStaff(int staffId, String firstName, String lastName, String role, String email, String phoneNumber) {
+        int rowsAffected = 0;
+        String query = "UPDATE Staff SET firstName = ?, lastName = ?, role = ?, email = ?, phoneNumber = ? WHERE staffId = ?";
+        try (Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
+             PreparedStatement pstat = connection.prepareStatement(query)) {
+            pstat.setString(1, firstName);
+            pstat.setString(2, lastName);
+            pstat.setString(3, role);
+            pstat.setString(4, email);
+            pstat.setString(5, phoneNumber);
+            pstat.setInt(6, staffId);
+            rowsAffected = pstat.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rowsAffected;
+    }
+
+    private int deleteStaff(int staffId) {
+        int rowsAffected = 0;
+        String query = "DELETE FROM Staff WHERE staffId = ?";
+        try (Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
+             PreparedStatement pstat = connection.prepareStatement(query)) {
+            pstat.setInt(1, staffId);
+            rowsAffected = pstat.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rowsAffected;
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new guiTest().setVisible(true));
+        SwingUtilities.invokeLater(() -> new mainGUI().setVisible(true));
     }
 }

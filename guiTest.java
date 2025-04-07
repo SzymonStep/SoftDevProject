@@ -9,6 +9,9 @@ public class guiTest extends JFrame {
     private static final String DATABASE_URL = "jdbc:mysql://localhost:3306/SalesSystem?allowPublicKeyRetrieval=true&useSSL=false";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "password";
+    
+    // Constant for uniform Add and Delete button size
+    private static final Dimension BUTTON_SIZE = new Dimension(150, 40);
 
     public guiTest() {
         setTitle("Pharmacy System");
@@ -169,6 +172,7 @@ public class guiTest extends JFrame {
         panel.add(phoneField);
 
         JButton addButton = new JButton("Add");
+        addButton.setPreferredSize(BUTTON_SIZE);
         panel.add(addButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
@@ -272,6 +276,7 @@ public class guiTest extends JFrame {
         panel.add(idField);
 
         JButton deleteButton = new JButton("Delete");
+        deleteButton.setPreferredSize(BUTTON_SIZE);
         panel.add(deleteButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
@@ -330,11 +335,54 @@ public class guiTest extends JFrame {
         JFrame frame = new JFrame("Add Stock");
         frame.setSize(400, 300);
         frame.setLocationRelativeTo(this);
-        JPanel panel = new JPanel(new BorderLayout());
-        JLabel label = new JLabel("Add Stock functionality not implemented yet.", SwingConstants.CENTER);
-        panel.add(label, BorderLayout.CENTER);
+        JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
+
+        panel.add(new JLabel("Product Name:"));
+        JTextField prodNameField = new JTextField();
+        panel.add(prodNameField);
+
+        panel.add(new JLabel("Quantity:"));
+        JTextField quantityField = new JTextField();
+        panel.add(quantityField);
+
+        panel.add(new JLabel("Price:"));
+        JTextField priceField = new JTextField();
+        panel.add(priceField);
+
+        JButton addButton = new JButton("Add");
+        addButton.setPreferredSize(BUTTON_SIZE);
+        panel.add(addButton);
+        JButton cancelButton = new JButton("Cancel");
+        panel.add(cancelButton);
+
         frame.add(panel);
         frame.setVisible(true);
+
+        addButton.addActionListener(e -> {
+            Map<String, Object> stockData = new HashMap<>();
+            stockData.put("prodName", prodNameField.getText());
+            try {
+                stockData.put("quantity", Integer.parseInt(quantityField.getText()));
+            } catch(NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame, "Invalid quantity.");
+                return;
+            }
+            try {
+                stockData.put("price", Integer.parseInt(priceField.getText()));
+            } catch(NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame, "Invalid price.");
+                return;
+            }
+            int rowsAffected = insertRecord("Stock", stockData);
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(frame, "Stock added successfully.");
+            } else {
+                JOptionPane.showMessageDialog(frame, "Error adding stock.");
+            }
+            frame.dispose();
+        });
+
+        cancelButton.addActionListener(e -> frame.dispose());
     }
 
     private void openUpdateStockWindow() {
@@ -400,6 +448,7 @@ public class guiTest extends JFrame {
         panel.add(idField);
 
         JButton deleteButton = new JButton("Delete");
+        deleteButton.setPreferredSize(BUTTON_SIZE);
         panel.add(deleteButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
@@ -431,10 +480,25 @@ public class guiTest extends JFrame {
         JFrame frame = new JFrame("View Stock");
         frame.setSize(600, 400);
         frame.setLocationRelativeTo(this);
-        JPanel panel = new JPanel(new BorderLayout());
-        JLabel label = new JLabel("View Stock functionality not implemented yet.", SwingConstants.CENTER);
-        panel.add(label, BorderLayout.CENTER);
-        frame.add(panel);
+
+        List<Map<String, String>> stockItems = GenericDatabaseManager.fetchData("Stock");
+        if (stockItems.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "No stock data available.");
+            return;
+        }
+        Set<String> columns = stockItems.get(0).keySet();
+        String[] columnNames = columns.toArray(new String[0]);
+        Object[][] data = new Object[stockItems.size()][columnNames.length];
+        for (int i = 0; i < stockItems.size(); i++) {
+            Map<String, String> record = stockItems.get(i);
+            int j = 0;
+            for (String col : columnNames) {
+                data[i][j++] = record.get(col);
+            }
+        }
+        JTable table = new JTable(data, columnNames);
+        JScrollPane scrollPane = new JScrollPane(table);
+        frame.add(scrollPane);
         frame.setVisible(true);
     }
 
@@ -462,6 +526,7 @@ public class guiTest extends JFrame {
         panel.add(reportedDateField);
 
         JButton addButton = new JButton("Add");
+        addButton.setPreferredSize(BUTTON_SIZE);
         panel.add(addButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
@@ -571,6 +636,7 @@ public class guiTest extends JFrame {
         panel.add(idField);
 
         JButton deleteButton = new JButton("Delete");
+        deleteButton.setPreferredSize(BUTTON_SIZE);
         panel.add(deleteButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
@@ -648,6 +714,7 @@ public class guiTest extends JFrame {
         panel.add(statusField);
 
         JButton addButton = new JButton("Add");
+        addButton.setPreferredSize(BUTTON_SIZE);
         panel.add(addButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);
@@ -763,6 +830,7 @@ public class guiTest extends JFrame {
         panel.add(orderIdField);
 
         JButton deleteButton = new JButton("Delete");
+        deleteButton.setPreferredSize(BUTTON_SIZE);
         panel.add(deleteButton);
         JButton cancelButton = new JButton("Cancel");
         panel.add(cancelButton);

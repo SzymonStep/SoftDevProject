@@ -37,7 +37,7 @@ public class deleteRecords {
 
         } catch (SQLIntegrityConstraintViolationException e) {
             // Catch violation of foreign key constraints (cannot delete a record that is referenced)
-            System.out.println("Cannot delete record: Foreign key constraint violation.");
+            System.out.println("Cannot delete record: Foreign key constraint violation."); 
         } catch (SQLException e) {
             // Catch any other SQL exceptions and print the stack trace for debugging
             e.printStackTrace();
