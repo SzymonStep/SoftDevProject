@@ -1,82 +1,34 @@
-import java.sql.*; // Importing required SQL classes for database connection and operations
-import java.util.HashMap; // Importing HashMap to store table names and primary keys
-import java.util.Map; // Importing Map interface for HashMap
-import java.util.Scanner; // Importing Scanner for user input
+import java.sql.*; // Import SQL classes for database operations
 
 public class deleteRecords {
-    // Database credentials
+    // Database credentials for connecting to MySQL database
     private static final String DATABASE_URL = "jdbc:mysql://localhost:3306/SalesSystem?allowPublicKeyRetrieval=true&useSSL=false";
     private static final String USERNAME = "root"; // Change as needed
     private static final String PASSWORD = "password"; // Change as needed
 
-    public static void main(String[] args) {
-        // Using try-with-resources to automatically close Scanner
-        try (Scanner scanner = new Scanner(System.in)) {
-
-            // 🔹 Storing table names and their primary keys using HashMap
-            Map<String, String> tables = new HashMap<>();
-            tables.put("Customer", "customerId");
-            tables.put("Staff", "staffId");
-            tables.put("Equipment", "equipmentId");
-            tables.put("Orders", "orderId");
-            tables.put("OrderReturns", "returnId");
-            tables.put("OrderAndEquipment", "orderId, equipmentId"); // Composite key
-            tables.put("CustomerFeedback", "feedbackId");
-            tables.put("Delivery", "deliveryId");
-            tables.put("Reports", "reportId");
-            tables.put("FaultyItems", "faultId");
-
-            // 🔹 Displaying available tables
-            System.out.println("Available Tables:");
-            int index = 1;
-            for (String table : tables.keySet()) {
-                System.out.println(index++ + ". " + table);
-            }
-
-            // 🔹 Prompting user to select a table
-            System.out.print("Enter the number of the table you want to delete from: ");
-            int tableChoice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
-
-            if (tableChoice < 1 || tableChoice > tables.size()) {
-                System.out.println("Invalid choice. Exiting...");
-                return;
-            }
-
-            // 🔹 Getting selected table name and primary key
-            String tableName = (String) tables.keySet().toArray()[tableChoice - 1];
-            String primaryKey = tables.get(tableName);
-
-            // 🔹 Handling Composite Primary Key (OrderAndEquipment)
-            if (primaryKey.contains(",")) {
-                System.out.print("Enter orderId: ");
-                int orderId = scanner.nextInt();
-                System.out.print("Enter equipmentId: ");
-                int equipmentId = scanner.nextInt();
-
-                deleteCompositeRecord(tableName, orderId, equipmentId);
-            } else {
-                System.out.print("Enter " + primaryKey + " to delete: ");
-                int primaryKeyValue = scanner.nextInt();
-
-                deleteRecord(tableName, primaryKey, primaryKeyValue);
-            }
-        } // 🔹 Scanner automatically closed here due to try-with-resources
-    }
-
     /**
      * Deletes a record from a table using a single primary key.
+     * 
+     * @param tableName The name of the table from which the record should be deleted.
+     * @param primaryKey The column name of the primary key.
+     * @param primaryKeyValue The value of the primary key of the record to be deleted.
      */
-    private static void deleteRecord(String tableName, String primaryKey, int primaryKeyValue) {
-        // SQL DELETE query
+    public static void deleteRecord(String tableName, String primaryKey, int primaryKeyValue) {
+        // SQL query to delete a record from a table using the primary key value.
         String query = "DELETE FROM " + tableName + " WHERE " + primaryKey + " = ?";
 
-        try (Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
-             PreparedStatement pstat = connection.prepareStatement(query)) {
-
+        try (
+            // Create a database connection and prepare the DELETE statement
+            Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
+            PreparedStatement pstat = connection.prepareStatement(query)
+        ) {
+            // Set the primary key value in the query
             pstat.setInt(1, primaryKeyValue);
 
+            // Execute the query and get the number of rows affected
             int rowsAffected = pstat.executeUpdate();
+
+            // If rows are affected, print success message
             if (rowsAffected > 0) {
                 System.out.println("Record deleted successfully from " + tableName + ".");
             } else {
@@ -84,26 +36,38 @@ public class deleteRecords {
             }
 
         } catch (SQLIntegrityConstraintViolationException e) {
+            // Catch violation of foreign key constraints (cannot delete a record that is referenced)
             System.out.println("Cannot delete record: Foreign key constraint violation.");
         } catch (SQLException e) {
+            // Catch any other SQL exceptions and print the stack trace for debugging
             e.printStackTrace();
         }
     }
 
     /**
-     * Deletes a record from OrderAndEquipment, which has a composite primary key.
+    - Deletes a record from OrderAndEquipment table, which has a composite primary key.
+    - This method is specific for tables with composite keys (orderId, equipmentId). 
+    - @param tableName The name of the table from which the record should be deleted.
+    - @param orderId The orderId part of the composite primary key.
+    - @param equipmentId The equipmentId part of the composite primary key.
      */
-    private static void deleteCompositeRecord(String tableName, int orderId, int equipmentId) {
-        // SQL DELETE query for composite primary key
+    public static void deleteCompositeRecord(String tableName, int orderId, int equipmentId) {
+        // SQL query to delete a record using both parts of the composite primary key
         String query = "DELETE FROM " + tableName + " WHERE orderId = ? AND equipmentId = ?";
 
-        try (Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
-             PreparedStatement pstat = connection.prepareStatement(query)) {
-
+        try (
+            // Create a database connection and prepare the DELETE statement
+            Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
+            PreparedStatement pstat = connection.prepareStatement(query)
+        ) {
+            // Set both parts of the composite key in the query
             pstat.setInt(1, orderId);
             pstat.setInt(2, equipmentId);
 
+            // Execute the query and get the number of rows affected
             int rowsAffected = pstat.executeUpdate();
+
+            // If rows are affected, print success message
             if (rowsAffected > 0) {
                 System.out.println("Record deleted successfully from " + tableName + ".");
             } else {
@@ -111,8 +75,10 @@ public class deleteRecords {
             }
 
         } catch (SQLIntegrityConstraintViolationException e) {
+            // Catch violation of foreign key constraints (cannot delete a record that is referenced)
             System.out.println("Cannot delete record: Foreign key constraint violation.");
         } catch (SQLException e) {
+            // Catch any other SQL exceptions and print the stack trace for debugging
             e.printStackTrace();
         }
     }

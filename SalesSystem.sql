@@ -88,4 +88,4 @@ CREATE TABLE FaultyItems (
     faultDescription TEXT NOT NULL,
     reportedDate DATETIME NOT NULL,
     FOREIGN KEY (equipmentId) REFERENCES Equipment(equipmentId)
-);
+); 
