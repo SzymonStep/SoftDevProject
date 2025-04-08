@@ -3,6 +3,10 @@ import java.awt.*;
 import java.sql.*;
 import java.util.*;
 import java.util.List;
+import java.time.LocalDate;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.sql.Date;
 
 public class mainGUI extends JFrame {
     // Database connection details
@@ -79,10 +83,7 @@ public class mainGUI extends JFrame {
             popupMenu.add(btn);
             popupMenu.addSeparator();
         }
-        // Show the popup menu to the right of the header button when clicked.
-        headerButton.addActionListener(e -> {
-            popupMenu.show(headerButton, headerButton.getWidth(), 0);
-        });
+        headerButton.addActionListener(e -> popupMenu.show(headerButton, headerButton.getWidth(), 0));
 
         panel.add(headerButton);
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -108,17 +109,7 @@ public class mainGUI extends JFrame {
         List<JButton> customerButtons = Arrays.asList(addCustomerBtn, updateCustomerBtn, deleteCustomerBtn, viewCustomersBtn);
         JPanel customerPanel = createCollapsiblePanel("Customer", customerButtons);
 
-        // Stock operations.
-        JButton addStockBtn = new JButton("Add Stock");
-        addStockBtn.addActionListener(e -> openAddStockWindow());
-        JButton updateStockBtn = new JButton("Update Stock");
-        updateStockBtn.addActionListener(e -> openUpdateStockWindow());
-        JButton deleteStockBtn = new JButton("Delete Stock");
-        deleteStockBtn.addActionListener(e -> openDeleteStockWindow());
-        JButton viewStockBtn = new JButton("View Stock");
-        viewStockBtn.addActionListener(e -> openViewStockWindow());
-        List<JButton> stockButtons = Arrays.asList(addStockBtn, updateStockBtn, deleteStockBtn, viewStockBtn);
-        JPanel stockPanel = createCollapsiblePanel("Stock", stockButtons);
+        // (Stock operations removed.)
 
         // Faulty Items operations.
         JButton addFaultyItemBtn = new JButton("Add Faulty Item");
@@ -168,11 +159,8 @@ public class mainGUI extends JFrame {
         List<JButton> staffButtons = Arrays.asList(addStaffBtn, updateStaffBtn, deleteStaffBtn, viewStaffBtn);
         JPanel staffPanel = createCollapsiblePanel("Staff", staffButtons);
 
-        // Add sections with spacing.
         sideMenu.add(Box.createRigidArea(new Dimension(0, 20)));
         sideMenu.add(customerPanel);
-        sideMenu.add(Box.createRigidArea(new Dimension(0, 20)));
-        sideMenu.add(stockPanel);
         sideMenu.add(Box.createRigidArea(new Dimension(0, 20)));
         sideMenu.add(faultyItemsPanel);
         sideMenu.add(Box.createRigidArea(new Dimension(0, 20)));
@@ -186,8 +174,6 @@ public class mainGUI extends JFrame {
     }
 
     // ---------------- Operation Panels ----------------
-    // All operations now update the center panel.
-
     // Customer Operations
     private void openAddCustomerWindow() {
         JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
@@ -315,7 +301,8 @@ public class mainGUI extends JFrame {
     }
 
     private void openViewCustomersWindow() {
-        List<Map<String, String>> customers = GenericDatabaseManager.fetchData("Customer");
+        // Replace GenericDatabaseManager.fetchData with your own fetch mechanism if needed.
+        List<Map<String, String>> customers = fetchData("Customer");
         if (customers.isEmpty()) {
             JOptionPane.showMessageDialog(mainGUI.this, "No customer data available.");
             setCenterPanel(createPlaceholderPanel());
@@ -338,160 +325,22 @@ public class mainGUI extends JFrame {
         setCenterPanel(panel);
     }
 
-    // Stock Operations
-    private void openAddStockWindow() {
-        JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
-        panel.add(new JLabel("Product Name:"));
-        JTextField productField = new JTextField();
-        panel.add(productField);
-        panel.add(new JLabel("Quantity:"));
-        JTextField quantityField = new JTextField();
-        panel.add(quantityField);
-        panel.add(new JLabel("Price:"));
-        JTextField priceField = new JTextField();
-        panel.add(priceField);
-        JButton addButton = new JButton("Add");
-        addButton.setPreferredSize(BUTTON_SIZE);
-        panel.add(addButton);
-        JButton cancelButton = new JButton("Cancel");
-        panel.add(cancelButton);
-        setCenterPanel(panel);
-
-        addButton.addActionListener(e -> {
-            Map<String, Object> stockData = new HashMap<>();
-            stockData.put("prodName", productField.getText());
-            try {
-                stockData.put("quantity", Integer.parseInt(quantityField.getText()));
-            } catch(NumberFormatException ex) {
-                JOptionPane.showMessageDialog(mainGUI.this, "Invalid quantity.");
-                return;
-            }
-            try {
-                stockData.put("price", Integer.parseInt(priceField.getText()));
-            } catch(NumberFormatException ex) {
-                JOptionPane.showMessageDialog(mainGUI.this, "Invalid price.");
-                return;
-            }
-            int rowsAffected = insertRecord("Stock", stockData);
-            if(rowsAffected > 0){
-                JOptionPane.showMessageDialog(mainGUI.this, "Stock added successfully.");
-            } else {
-                JOptionPane.showMessageDialog(mainGUI.this, "Error adding stock.");
-            }
-            setCenterPanel(createPlaceholderPanel());
-        });
-        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
-    }
-
-    private void openUpdateStockWindow() {
-        JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
-        panel.add(new JLabel("Stock ID:"));
-        JTextField idField = new JTextField();
-        panel.add(idField);
-        panel.add(new JLabel("Product Name:"));
-        JTextField productField = new JTextField();
-        panel.add(productField);
-        panel.add(new JLabel("Quantity:"));
-        JTextField quantityField = new JTextField();
-        panel.add(quantityField);
-        panel.add(new JLabel("Price:"));
-        JTextField priceField = new JTextField();
-        panel.add(priceField);
-        JButton updateButton = new JButton("Update");
-        panel.add(updateButton);
-        JButton cancelButton = new JButton("Cancel");
-        panel.add(cancelButton);
-        setCenterPanel(panel);
-
-        updateButton.addActionListener(e -> {
-            int stockId, quantity, price;
-            try {
-                stockId = Integer.parseInt(idField.getText());
-                quantity = Integer.parseInt(quantityField.getText());
-                price = Integer.parseInt(priceField.getText());
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(mainGUI.this, "Invalid input. Please enter valid numbers for Stock ID, Quantity, and Price.");
-                return;
-            }
-            int rowsAffected = updateStock(stockId, productField.getText(), quantity, price);
-            if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(mainGUI.this, "Stock updated successfully.");
-            } else {
-                JOptionPane.showMessageDialog(mainGUI.this, "Error updating stock.");
-            }
-            setCenterPanel(createPlaceholderPanel());
-        });
-        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
-    }
-
-    private void openDeleteStockWindow() {
-        JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
-        panel.add(new JLabel("Stock ID:"));
-        JTextField idField = new JTextField();
-        panel.add(idField);
-        JButton deleteButton = new JButton("Delete");
-        deleteButton.setPreferredSize(BUTTON_SIZE);
-        panel.add(deleteButton);
-        JButton cancelButton = new JButton("Cancel");
-        panel.add(cancelButton);
-        setCenterPanel(panel);
-
-        deleteButton.addActionListener(e -> {
-            int stockId;
-            try {
-                stockId = Integer.parseInt(idField.getText());
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Stock ID");
-                return;
-            }
-            int rowsAffected = deleteStock(stockId);
-            if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(mainGUI.this, "Stock deleted successfully.");
-            } else {
-                JOptionPane.showMessageDialog(mainGUI.this, "Error deleting stock.");
-            }
-            setCenterPanel(createPlaceholderPanel());
-        });
-        cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
-    }
-
-    private void openViewStockWindow() {
-        List<Map<String, String>> stock = GenericDatabaseManager.fetchData("Stock");
-        if(stock.isEmpty()){
-            JOptionPane.showMessageDialog(mainGUI.this, "No stock data available.");
-            setCenterPanel(createPlaceholderPanel());
-            return;
-        }
-        Set<String> columns = stock.get(0).keySet();
-        String[] columnNames = columns.toArray(new String[0]);
-        Object[][] data = new Object[stock.size()][columnNames.length];
-        for (int i = 0; i < stock.size(); i++) {
-            Map<String, String> record = stock.get(i);
-            int j = 0;
-            for (String col : columnNames) {
-                data[i][j++] = record.get(col);
-            }
-        }
-        JTable table = new JTable(data, columnNames);
-        JScrollPane scrollPane = new JScrollPane(table);
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(scrollPane, BorderLayout.CENTER);
-        setCenterPanel(panel);
-    }
+    // --- Stock Operations Removed (no Stock table in the database) ---
 
     // Faulty Items Operations
     private void openAddFaultyItemWindow() {
         JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
-        panel.add(new JLabel("Item Name:"));
-        JTextField itemNameField = new JTextField();
-        panel.add(itemNameField);
-        panel.add(new JLabel("Description:"));
+        // Mapping for FaultyItems: we use equipmentId, batchNumber, faultDescription, reportedDate
+        panel.add(new JLabel("Equipment ID:"));
+        JTextField equipmentIdField = new JTextField();
+        panel.add(equipmentIdField);
+        panel.add(new JLabel("Fault Description:"));
         JTextField descriptionField = new JTextField();
         panel.add(descriptionField);
-        panel.add(new JLabel("Quantity:"));
-        JTextField quantityField = new JTextField();
-        panel.add(quantityField);
-        panel.add(new JLabel("Reported Date (YYYY-MM-DD):"));
+        panel.add(new JLabel("Batch Number:"));
+        JTextField batchField = new JTextField();
+        panel.add(batchField);
+        panel.add(new JLabel("Reported Date (YYYY-MM-DD HH:MM:SS):"));
         JTextField reportedDateField = new JTextField();
         panel.add(reportedDateField);
         JButton addButton = new JButton("Add");
@@ -503,14 +352,19 @@ public class mainGUI extends JFrame {
 
         addButton.addActionListener(e -> {
             Map<String, Object> faultyItemData = new HashMap<>();
-            faultyItemData.put("itemName", itemNameField.getText());
-            faultyItemData.put("description", descriptionField.getText());
             try {
-                faultyItemData.put("quantity", Integer.parseInt(quantityField.getText()));
+                faultyItemData.put("equipmentId", Integer.parseInt(equipmentIdField.getText()));
             } catch(NumberFormatException ex) {
-                JOptionPane.showMessageDialog(mainGUI.this, "Invalid quantity.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Equipment ID.");
                 return;
             }
+            try {
+                faultyItemData.put("batchNumber", Integer.parseInt(batchField.getText()));
+            } catch(NumberFormatException ex) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Batch Number.");
+                return;
+            }
+            faultyItemData.put("faultDescription", descriptionField.getText());
             faultyItemData.put("reportedDate", reportedDateField.getText());
             int rowsAffected = insertRecord("FaultyItems", faultyItemData);
             if (rowsAffected > 0) {
@@ -523,21 +377,22 @@ public class mainGUI extends JFrame {
         cancelButton.addActionListener(e -> setCenterPanel(createPlaceholderPanel()));
     }
 
+    // Updated openUpdateFaultyItemWindow to match the FaultyItems schema.
     private void openUpdateFaultyItemWindow() {
         JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
-        panel.add(new JLabel("Faulty Item ID:"));
+        panel.add(new JLabel("Fault ID:"));
         JTextField idField = new JTextField();
         panel.add(idField);
-        panel.add(new JLabel("New Item Name:"));
-        JTextField itemNameField = new JTextField();
-        panel.add(itemNameField);
-        panel.add(new JLabel("New Description:"));
+        panel.add(new JLabel("New Equipment ID:"));
+        JTextField equipmentIdField = new JTextField();
+        panel.add(equipmentIdField);
+        panel.add(new JLabel("New Fault Description:"));
         JTextField descriptionField = new JTextField();
         panel.add(descriptionField);
-        panel.add(new JLabel("New Quantity:"));
-        JTextField quantityField = new JTextField();
-        panel.add(quantityField);
-        panel.add(new JLabel("New Reported Date (YYYY-MM-DD):"));
+        panel.add(new JLabel("New Batch Number:"));
+        JTextField batchField = new JTextField();
+        panel.add(batchField);
+        panel.add(new JLabel("New Reported Date (YYYY-MM-DD HH:MM:SS):"));
         JTextField reportedDateField = new JTextField();
         panel.add(reportedDateField);
         JButton updateButton = new JButton("Update");
@@ -547,27 +402,31 @@ public class mainGUI extends JFrame {
         setCenterPanel(panel);
 
         updateButton.addActionListener(e -> {
-            int itemId;
+            int faultId;
             try {
-                itemId = Integer.parseInt(idField.getText());
+                faultId = Integer.parseInt(idField.getText());
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Faulty Item ID");
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Fault ID");
                 return;
             }
-            int quantity;
+            int equipmentId;
             try {
-                quantity = Integer.parseInt(quantityField.getText());
+                equipmentId = Integer.parseInt(equipmentIdField.getText());
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(mainGUI.this, "Invalid quantity.");
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Equipment ID");
                 return;
             }
-            int rowsAffected = updateFaultyItem(
-                    itemId,
-                    itemNameField.getText(),
-                    descriptionField.getText(),
-                    quantity,
-                    reportedDateField.getText()
-            );
+            int batchNumber;
+            try {
+                batchNumber = Integer.parseInt(batchField.getText());
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Batch Number");
+                return;
+            }
+            String faultDescription = descriptionField.getText();
+            String reportedDate = reportedDateField.getText();
+
+            int rowsAffected = updateFaultyItems(faultId, equipmentId, batchNumber, faultDescription, reportedDate);
             if (rowsAffected > 0) {
                 JOptionPane.showMessageDialog(mainGUI.this, "Faulty item updated successfully.");
             } else {
@@ -580,7 +439,7 @@ public class mainGUI extends JFrame {
 
     private void openDeleteFaultyItemWindow() {
         JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
-        panel.add(new JLabel("Faulty Item ID:"));
+        panel.add(new JLabel("Fault ID:"));
         JTextField idField = new JTextField();
         panel.add(idField);
         JButton deleteButton = new JButton("Delete");
@@ -591,14 +450,14 @@ public class mainGUI extends JFrame {
         setCenterPanel(panel);
 
         deleteButton.addActionListener(e -> {
-            int itemId;
+            int faultId;
             try {
-                itemId = Integer.parseInt(idField.getText());
+                faultId = Integer.parseInt(idField.getText());
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Faulty Item ID");
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid Fault ID");
                 return;
             }
-            int rowsAffected = deleteFaultyItem(itemId);
+            int rowsAffected = deleteFaultyItem(faultId);
             if (rowsAffected > 0) {
                 JOptionPane.showMessageDialog(mainGUI.this, "Faulty item deleted successfully.");
             } else {
@@ -610,7 +469,7 @@ public class mainGUI extends JFrame {
     }
 
     private void openViewFaultyItemsWindow() {
-        List<Map<String, String>> items = GenericDatabaseManager.fetchData("FaultyItems");
+        List<Map<String, String>> items = fetchData("FaultyItems");
         if (items.isEmpty()) {
             JOptionPane.showMessageDialog(mainGUI.this, "No faulty items data available.");
             setCenterPanel(createPlaceholderPanel());
@@ -639,13 +498,13 @@ public class mainGUI extends JFrame {
         panel.add(new JLabel("Customer ID:"));
         JTextField customerIdField = new JTextField();
         panel.add(customerIdField);
-        panel.add(new JLabel("Order Date (YYYY-MM-DD):"));
+        panel.add(new JLabel("Order Date (YYYY-MM-DD HH:MM:SS):"));
         JTextField orderDateField = new JTextField();
         panel.add(orderDateField);
         panel.add(new JLabel("Total Amount:"));
         JTextField totalAmountField = new JTextField();
         panel.add(totalAmountField);
-        panel.add(new JLabel("Status:"));
+        panel.add(new JLabel("Order Status:"));
         JTextField statusField = new JTextField();
         panel.add(statusField);
         JButton addButton = new JButton("Add");
@@ -670,7 +529,7 @@ public class mainGUI extends JFrame {
                 JOptionPane.showMessageDialog(mainGUI.this, "Invalid Total Amount.");
                 return;
             }
-            orderData.put("status", statusField.getText());
+            orderData.put("orderStatus", statusField.getText());
             int rowsAffected = insertRecord("Orders", orderData);
             if (rowsAffected > 0) {
                 JOptionPane.showMessageDialog(mainGUI.this, "Order added successfully.");
@@ -690,13 +549,13 @@ public class mainGUI extends JFrame {
         panel.add(new JLabel("New Customer ID:"));
         JTextField customerIdField = new JTextField();
         panel.add(customerIdField);
-        panel.add(new JLabel("New Order Date (YYYY-MM-DD):"));
+        panel.add(new JLabel("New Order Date (YYYY-MM-DD HH:MM:SS):"));
         JTextField orderDateField = new JTextField();
         panel.add(orderDateField);
         panel.add(new JLabel("New Total Amount:"));
         JTextField totalAmountField = new JTextField();
         panel.add(totalAmountField);
-        panel.add(new JLabel("New Status:"));
+        panel.add(new JLabel("New Order Status:"));
         JTextField statusField = new JTextField();
         panel.add(statusField);
         JButton updateButton = new JButton("Update");
@@ -770,7 +629,7 @@ public class mainGUI extends JFrame {
     }
 
     private void openViewOrdersWindow() {
-        List<Map<String, String>> orders = GenericDatabaseManager.fetchData("Orders");
+        List<Map<String, String>> orders = fetchData("Orders");
         if (orders.isEmpty()) {
             JOptionPane.showMessageDialog(mainGUI.this, "No orders data available.");
             setCenterPanel(createPlaceholderPanel());
@@ -802,12 +661,15 @@ public class mainGUI extends JFrame {
         panel.add(new JLabel("Equipment Type:"));
         JTextField equipmentTypeField = new JTextField();
         panel.add(equipmentTypeField);
-        panel.add(new JLabel("Purchase Date (YYYY-MM-DD):"));
-        JTextField purchaseDateField = new JTextField();
-        panel.add(purchaseDateField);
-        panel.add(new JLabel("Status:"));
-        JTextField statusField = new JTextField();
-        panel.add(statusField);
+        panel.add(new JLabel("Equipment Specifications:"));
+        JTextField specsField = new JTextField();
+        panel.add(specsField);
+        panel.add(new JLabel("Quantity Available:"));
+        JTextField quantityField = new JTextField();
+        panel.add(quantityField);
+        panel.add(new JLabel("Equipment Price:"));
+        JTextField priceField = new JTextField();
+        panel.add(priceField);
         JButton addButton = new JButton("Add");
         addButton.setPreferredSize(BUTTON_SIZE);
         panel.add(addButton);
@@ -819,8 +681,19 @@ public class mainGUI extends JFrame {
             Map<String, Object> equipmentData = new HashMap<>();
             equipmentData.put("equipmentName", equipmentNameField.getText());
             equipmentData.put("equipmentType", equipmentTypeField.getText());
-            equipmentData.put("purchaseDate", purchaseDateField.getText());
-            equipmentData.put("status", statusField.getText());
+            equipmentData.put("equipmentSpecifications", specsField.getText());
+            try {
+                equipmentData.put("quantityAvailable", Integer.parseInt(quantityField.getText()));
+            } catch(NumberFormatException ex) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid quantity.");
+                return;
+            }
+            try {
+                equipmentData.put("equipmentPrice", Double.parseDouble(priceField.getText()));
+            } catch(NumberFormatException ex) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid price.");
+                return;
+            }
             int rowsAffected = insertRecord("Equipment", equipmentData);
             if (rowsAffected > 0) {
                 JOptionPane.showMessageDialog(mainGUI.this, "Equipment added successfully.");
@@ -843,12 +716,15 @@ public class mainGUI extends JFrame {
         panel.add(new JLabel("New Equipment Type:"));
         JTextField equipmentTypeField = new JTextField();
         panel.add(equipmentTypeField);
-        panel.add(new JLabel("New Purchase Date (YYYY-MM-DD):"));
-        JTextField purchaseDateField = new JTextField();
-        panel.add(purchaseDateField);
-        panel.add(new JLabel("New Status:"));
-        JTextField statusField = new JTextField();
-        panel.add(statusField);
+        panel.add(new JLabel("New Equipment Specifications:"));
+        JTextField specsField = new JTextField();
+        panel.add(specsField);
+        panel.add(new JLabel("New Quantity Available:"));
+        JTextField quantityField = new JTextField();
+        panel.add(quantityField);
+        panel.add(new JLabel("New Equipment Price:"));
+        JTextField priceField = new JTextField();
+        panel.add(priceField);
         JButton updateButton = new JButton("Update");
         panel.add(updateButton);
         JButton cancelButton = new JButton("Cancel");
@@ -863,7 +739,28 @@ public class mainGUI extends JFrame {
                 JOptionPane.showMessageDialog(mainGUI.this, "Invalid Equipment ID");
                 return;
             }
-            int rowsAffected = updateEquipment(equipmentId, equipmentNameField.getText(), equipmentTypeField.getText(), purchaseDateField.getText(), statusField.getText());
+            int quantityAvailable;
+            try {
+                quantityAvailable = Integer.parseInt(quantityField.getText());
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid quantity.");
+                return;
+            }
+            double equipmentPrice;
+            try {
+                equipmentPrice = Double.parseDouble(priceField.getText());
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(mainGUI.this, "Invalid price.");
+                return;
+            }
+            int rowsAffected = updateEquipment(
+                    equipmentId,
+                    equipmentNameField.getText(),
+                    equipmentTypeField.getText(),
+                    specsField.getText(),
+                    quantityAvailable,
+                    (int) equipmentPrice  // cast to int if you want integer prices; otherwise change helper method to accept double
+            );
             if (rowsAffected > 0) {
                 JOptionPane.showMessageDialog(mainGUI.this, "Equipment updated successfully.");
             } else {
@@ -906,7 +803,7 @@ public class mainGUI extends JFrame {
     }
 
     private void openViewEquipmentWindow() {
-        List<Map<String, String>> equipmentList = GenericDatabaseManager.fetchData("Equipment");
+        List<Map<String, String>> equipmentList = fetchData("Equipment");
         if (equipmentList.isEmpty()) {
             JOptionPane.showMessageDialog(mainGUI.this, "No equipment data available.");
             setCenterPanel(createPlaceholderPanel());
@@ -958,7 +855,7 @@ public class mainGUI extends JFrame {
             Map<String, Object> staffData = new HashMap<>();
             staffData.put("firstName", firstNameField.getText());
             staffData.put("lastName", lastNameField.getText());
-            staffData.put("role", roleField.getText());
+            staffData.put("staffRole", roleField.getText());
             staffData.put("email", emailField.getText());
             staffData.put("phoneNumber", phoneField.getText());
             int rowsAffected = insertRecord("Staff", staffData);
@@ -1049,7 +946,7 @@ public class mainGUI extends JFrame {
     }
 
     private void openViewStaffWindow() {
-        List<Map<String, String>> staffList = GenericDatabaseManager.fetchData("Staff");
+        List<Map<String, String>> staffList = fetchData("Staff");
         if (staffList.isEmpty()) {
             JOptionPane.showMessageDialog(mainGUI.this, "No staff data available.");
             setCenterPanel(createPlaceholderPanel());
@@ -1072,7 +969,8 @@ public class mainGUI extends JFrame {
         setCenterPanel(panel);
     }
 
-    // -------------- Database Helper Methods --------------
+    // ---------------- Database Helper Methods ----------------
+
     private int insertRecord(String tableName, Map<String, Object> data) {
         int rowsAffected = 0;
         if (data.isEmpty()) {
@@ -1127,15 +1025,24 @@ public class mainGUI extends JFrame {
         return rowsAffected;
     }
 
-    private int updateStock(int stockId, String prodName, int quantity, int price) {
+    // Removed Stock helper methods.
+
+    // Updated FaultyItems helper methods:
+    public static int updateFaultyItems(int faultId, int equipmentId, int batchNumber, String faultDescription, String reportedDate) {
+        Map<String, Object> faultyItemData = new HashMap<>();
+        faultyItemData.put("equipmentId", equipmentId);
+        faultyItemData.put("batchNumber", batchNumber);
+        faultyItemData.put("faultDescription", faultDescription);
+        faultyItemData.put("reportedDate", reportedDate);
+        return updateRecord("FaultyItems", faultyItemData, "faultId", faultId);
+    }
+
+    private int deleteFaultyItem(int faultId) {
         int rowsAffected = 0;
-        String query = "UPDATE Stock SET prodName = ?, quantity = ?, price = ? WHERE stockId = ?";
+        String query = "DELETE FROM FaultyItems WHERE faultId=?";
         try (Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
              PreparedStatement pstat = connection.prepareStatement(query)) {
-            pstat.setString(1, prodName);
-            pstat.setInt(2, quantity);
-            pstat.setInt(3, price);
-            pstat.setInt(4, stockId);
+            pstat.setInt(1, faultId);
             rowsAffected = pstat.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -1143,58 +1050,16 @@ public class mainGUI extends JFrame {
         return rowsAffected;
     }
 
-    private int deleteStock(int stockId) {
+    // Orders helper methods:
+    private int updateOrder(int orderId, int customerId, String orderDate, double totalAmount, String orderStatus) {
         int rowsAffected = 0;
-        String query = "DELETE FROM Stock WHERE stockId=?";
-        try (Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
-             PreparedStatement pstat = connection.prepareStatement(query)) {
-            pstat.setInt(1, stockId);
-            rowsAffected = pstat.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return rowsAffected;
-    }
-
-    private int updateFaultyItem(int itemId, String itemName, String description, int quantity, String reportedDate) {
-        int rowsAffected = 0;
-        String query = "UPDATE FaultyItems SET itemName=?, description=?, quantity=?, reportedDate=? WHERE itemId=?";
-        try (Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
-             PreparedStatement pstat = connection.prepareStatement(query)) {
-            pstat.setString(1, itemName);
-            pstat.setString(2, description);
-            pstat.setInt(3, quantity);
-            pstat.setString(4, reportedDate);
-            pstat.setInt(5, itemId);
-            rowsAffected = pstat.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return rowsAffected;
-    }
-
-    private int deleteFaultyItem(int itemId) {
-        int rowsAffected = 0;
-        String query = "DELETE FROM FaultyItems WHERE itemId=?";
-        try (Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
-             PreparedStatement pstat = connection.prepareStatement(query)) {
-            pstat.setInt(1, itemId);
-            rowsAffected = pstat.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return rowsAffected;
-    }
-
-    private int updateOrder(int orderId, int customerId, String orderDate, double totalAmount, String status) {
-        int rowsAffected = 0;
-        String query = "UPDATE Orders SET customerId=?, orderDate=?, totalAmount=?, status=? WHERE orderId=?";
+        String query = "UPDATE Orders SET customerId=?, orderDate=?, totalAmount=?, orderStatus=? WHERE orderId=?";
         try (Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
              PreparedStatement pstat = connection.prepareStatement(query)) {
             pstat.setInt(1, customerId);
             pstat.setString(2, orderDate);
             pstat.setDouble(3, totalAmount);
-            pstat.setString(4, status);
+            pstat.setString(4, orderStatus);
             pstat.setInt(5, orderId);
             rowsAffected = pstat.executeUpdate();
         } catch (SQLException e) {
@@ -1216,16 +1081,18 @@ public class mainGUI extends JFrame {
         return rowsAffected;
     }
 
-    private int updateEquipment(int equipmentId, String equipmentName, String equipmentType, String purchaseDate, String status) {
+    // Updated Equipment helper method:
+    private int updateEquipment(int equipmentId, String equipmentName, String equipmentType, String equipmentSpecifications, int quantityAvailable, int equipmentPrice) {
         int rowsAffected = 0;
-        String query = "UPDATE Equipment SET equipmentName = ?, equipmentType = ?, purchaseDate = ?, status = ? WHERE equipmentId = ?";
+        String query = "UPDATE Equipment SET equipmentName = ?, equipmentType = ?, equipmentSpecifications = ?, quantityAvailable = ?, equipmentPrice = ? WHERE equipmentId = ?";
         try (Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
              PreparedStatement pstat = connection.prepareStatement(query)) {
             pstat.setString(1, equipmentName);
             pstat.setString(2, equipmentType);
-            pstat.setString(3, purchaseDate);
-            pstat.setString(4, status);
-            pstat.setInt(5, equipmentId);
+            pstat.setString(3, equipmentSpecifications);
+            pstat.setInt(4, quantityAvailable);
+            pstat.setInt(5, equipmentPrice);
+            pstat.setInt(6, equipmentId);
             rowsAffected = pstat.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -1246,14 +1113,15 @@ public class mainGUI extends JFrame {
         return rowsAffected;
     }
 
-    private int updateStaff(int staffId, String firstName, String lastName, String role, String email, String phoneNumber) {
+    // Updated Staff helper method:
+    private int updateStaff(int staffId, String firstName, String lastName, String staffRole, String email, String phoneNumber) {
         int rowsAffected = 0;
-        String query = "UPDATE Staff SET firstName = ?, lastName = ?, role = ?, email = ?, phoneNumber = ? WHERE staffId = ?";
+        String query = "UPDATE Staff SET firstName = ?, lastName = ?, staffRole = ?, email = ?, phoneNumber = ? WHERE staffId = ?";
         try (Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
              PreparedStatement pstat = connection.prepareStatement(query)) {
             pstat.setString(1, firstName);
             pstat.setString(2, lastName);
-            pstat.setString(3, role);
+            pstat.setString(3, staffRole);
             pstat.setString(4, email);
             pstat.setString(5, phoneNumber);
             pstat.setInt(6, staffId);
@@ -1275,6 +1143,113 @@ public class mainGUI extends JFrame {
             e.printStackTrace();
         }
         return rowsAffected;
+    }
+
+    // Generic updateRecord method
+    public static int updateRecord(String tableName, Map<String, Object> data, String primaryKeyColumn, int primaryKeyValue) {
+        if (data.isEmpty()) {
+            System.out.println("No data provided to update.");
+            return 0;
+        }
+        
+        StringBuilder setClauseBuilder = new StringBuilder();
+        for (String key : data.keySet()) {
+            if (setClauseBuilder.length() > 0) {
+                setClauseBuilder.append(", ");
+            }
+            setClauseBuilder.append(key).append(" = ?");
+        }
+        String setClause = setClauseBuilder.toString();
+        
+        String query = "UPDATE " + tableName + " SET " + setClause + " WHERE " + primaryKeyColumn + " = ?";
+
+        try (Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
+             PreparedStatement pstat = connection.prepareStatement(query)) {
+            int index = 1;
+            for (Object value : data.values()) {
+                pstat.setObject(index++, value);
+            }
+            pstat.setObject(index, primaryKeyValue);
+
+            int rowsAffected = pstat.executeUpdate();
+            System.out.println(rowsAffected + " record(s) successfully updated in " + tableName);
+            return rowsAffected;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    // Insert helper methods
+    public static void insertCustomer(String firstName, String lastName, String address, String email, int phoneNumber) {
+        Map<String, Object> customerData = new HashMap<>();
+        customerData.put("firstName", firstName);
+        customerData.put("lastName", lastName);
+        customerData.put("address", address);
+        customerData.put("email", email);
+        customerData.put("phoneNumber", String.valueOf(phoneNumber));
+        insertRecord("Customer", customerData);
+    }
+
+    public static void insertStaff(String firstName, String lastName, String staffRole, String email, int phoneNumber) {
+        Map<String, Object> staffData = new HashMap<>();
+        staffData.put("firstName", firstName);
+        staffData.put("lastName", lastName);
+        staffData.put("staffRole", staffRole);
+        staffData.put("email", email);
+        staffData.put("phoneNumber", String.valueOf(phoneNumber));
+        insertRecord("Staff", staffData);
+    }
+
+    public static void insertEquipmentData(String equipmentName, String equipmentType, String equipmentSpecifications, int quantityAvailable, int equipmentPrice) {
+        Map<String, Object> equipmentData = new HashMap<>();
+        equipmentData.put("equipmentName", equipmentName);
+        equipmentData.put("equipmentType", equipmentType);
+        equipmentData.put("equipmentSpecifications", equipmentSpecifications);
+        equipmentData.put("quantityAvailable", quantityAvailable);
+        equipmentData.put("equipmentPrice", equipmentPrice);
+        insertRecord("Equipment", equipmentData);
+    }
+
+    public static void insertOrdersData(int customerId, int totalAmount, String orderStatus) {
+        Map<String, Object> ordersData = new HashMap<>();
+        ordersData.put("customerId", customerId);
+        ordersData.put("orderDate", Date.valueOf(LocalDate.now()));
+        ordersData.put("totalAmount", totalAmount);
+        ordersData.put("orderStatus", orderStatus);
+        insertRecord("Orders", ordersData);
+    }
+
+    public static void insertFaultyItems(int equipmentId, int batchNumber, String faultDescription) {
+        Map<String, Object> faultyItemData = new HashMap<>();
+        faultyItemData.put("equipmentId", equipmentId);
+        faultyItemData.put("batchNumber", batchNumber);
+        faultyItemData.put("faultDescription", faultDescription);
+        // For reportedDate, we use current time:
+        faultyItemData.put("reportedDate", Timestamp.valueOf(LocalDateTime.now()));
+        insertRecord("FaultyItems", faultyItemData);
+    }
+
+    // For fetching data in view panels, we create a simple fetchData method.
+    // (This is a simple implementation that returns a List<Map<String,String>> for a given table.)
+    private List<Map<String, String>> fetchData(String tableName) {
+        List<Map<String, String>> results = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
+             Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName)) {
+            ResultSetMetaData metaData = rs.getMetaData();
+            int colCount = metaData.getColumnCount();
+            while(rs.next()){
+                Map<String, String> row = new HashMap<>();
+                for (int i = 1; i <= colCount; i++){
+                    row.put(metaData.getColumnName(i), rs.getString(i));
+                }
+                results.add(row);
+            }
+        } catch(SQLException e){
+            e.printStackTrace();
+        }
+        return results;
     }
 
     public static void main(String[] args) {

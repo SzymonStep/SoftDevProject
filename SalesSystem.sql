@@ -37,50 +37,6 @@ CREATE TABLE Orders (
     FOREIGN KEY (customerId) REFERENCES Customer(customerId)
 );
 
-CREATE TABLE OrderReturns (
-    returnId INT AUTO_INCREMENT PRIMARY KEY,
-    orderId INT NOT NULL,
-    equipmentId INT NOT NULL,
-    reason TEXT NOT NULL,
-    orderReturnStatus VARCHAR(50) NOT NULL,
-    replacementRequested BOOLEAN,
-    FOREIGN KEY (orderId) REFERENCES Orders(orderId),
-    FOREIGN KEY (equipmentId) REFERENCES Equipment(equipmentId)
-);
-
-CREATE TABLE OrderAndEquipment (
-    orderId INT NOT NULL,
-    equipmentId INT NOT NULL,
-    PRIMARY KEY (orderId, equipmentId),
-    FOREIGN KEY (orderId) REFERENCES Orders(orderId),
-    FOREIGN KEY (equipmentID) REFERENCES Equipment(equipmentId)
-);
-
-CREATE TABLE CustomerFeedback (
-    feedbackId INT AUTO_INCREMENT PRIMARY KEY,
-    customerId INT NOT NULL,
-    orderId INT,
-    comments TEXT NOT NULL,
-    rating INT CHECK (rating BETWEEN 1 AND 5),
-    FOREIGN KEY (customerId) REFERENCES Customer(customerId),
-    FOREIGN KEY (orderId) REFERENCES Orders(orderId)
-);
-
-CREATE TABLE Delivery (
-    deliveryId INT AUTO_INCREMENT PRIMARY KEY,
-    orderId INT NOT NULL,
-    estimatedDeliveryTime DATETIME NOT NULL,
-    trackingStatus VARCHAR(50) NOT NULL,
-    FOREIGN KEY (orderId) REFERENCES Orders(orderId)
-);
-
-CREATE TABLE Reports (
-    reportId INT AUTO_INCREMENT PRIMARY KEY,
-    reportType VARCHAR(50) NOT NULL,
-    reportData TEXT NOT NULL,
-    reportDate DATETIME NOT NULL
-);
-
 CREATE TABLE FaultyItems (
     faultId INT AUTO_INCREMENT PRIMARY KEY,
     equipmentId INT NOT NULL,
