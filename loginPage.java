@@ -3,10 +3,9 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class loginPage extends JFrame {
-    private JTextField usernameField;
-    private JPasswordField passwordField;
-    private JButton loginButton;
-    private JLabel errorLabel; // Label to display validation errors
+    private final JTextField usernameField;
+    private final JPasswordField passwordField;
+    private final JLabel errorLabel; // Label to display validation errors
 
     public loginPage() {
         setTitle("Login Page");
@@ -62,7 +61,7 @@ public class loginPage extends JFrame {
         gridCons.gridx = 0;
         gridCons.gridy = 4;
         gridCons.anchor = GridBagConstraints.CENTER;
-        loginButton = new JButton("Login");
+        JButton loginButton = new JButton("Login");
         loginButton.setFont(new Font("SansSerif", Font.BOLD, 16));
         loginButton.setBackground(teal);
         loginButton.setForeground(Color.WHITE);
@@ -79,7 +78,7 @@ public class loginPage extends JFrame {
         panel.add(errorLabel, gridCons);
 
         add(panel);
-        
+
         // Set loginButton as the default button so that pressing Enter triggers its action.
         getRootPane().setDefaultButton(loginButton);
 
@@ -89,7 +88,7 @@ public class loginPage extends JFrame {
                 // Retrieve the entered username and password
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
-                
+
                 // Simple validation against predefined credentials
                 if (username.equals("admin") && password.equals("admin123")) {
                     errorLabel.setText(""); // Clear error message if any
@@ -97,7 +96,7 @@ public class loginPage extends JFrame {
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             // Assumes GUITest.java defines a class GUITest that extends JFrame
-                            new mainGUI().setVisible(true);
+                            new homeGUI().setVisible(true);
                         }
                     });
                 } else {
